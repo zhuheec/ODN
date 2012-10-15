@@ -1,10 +1,12 @@
 package org.zh.odn;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.TreeSet;
 
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -44,6 +46,50 @@ public class PackageGroup {
 		}
 	}
 	
+	public void removeNodesWithoutPrefix(String prefix) {
+		Iterator<Vertex> it = graph.getVertices().iterator();
+		while(it.hasNext()) {
+			Vertex v = it.next();
+			v.setProperty("name", v.getId());
+			if(!v.getId().toString().startsWith(prefix)) {
+				graph.removeVertex(v);
+			}
+		}
+		removeDuplicateRelations();
+	}
+	
+	public void printClasses() {
+		Iterator<Vertex> it = graph.getVertices().iterator();
+		while(it.hasNext()) {
+			Vertex v = it.next();
+			System.out.println(v.getId());
+		}
+	}
+	
+	public void printRelations() {
+		Iterator<Edge> it = graph.getEdges().iterator();
+		while(it.hasNext()) {
+			Edge ed = it.next();
+			System.out.println(ed.getVertex(Direction.IN).getId() + "  -->  " + ed.getVertex(Direction.OUT).getId());
+		}
+	}
+	
+	private void removeDuplicateRelations() {
+		HashSet<String> edges = new HashSet<String>();
+		Iterator<Edge> it = graph.getEdges().iterator();
+		while(it.hasNext()) {
+			Edge ed = it.next();
+			
+			String relationStrIn = ed.getVertex(Direction.IN).getId() + "  -->  " + ed.getVertex(Direction.OUT).getId();
+			String relationStrOut = ed.getVertex(Direction.OUT).getId() + "  -->  " + ed.getVertex(Direction.IN).getId();
+			if(edges.contains(relationStrIn) || edges.contains(relationStrOut)) {
+				graph.removeEdge(ed);
+			} else {
+				edges.add(relationStrIn);
+			}
+		}
+	}
+	
 	public void printPackages() {
 		TreeSet<String> keys = new TreeSet<String>(pkgTable.keySet());
 		for(String pkgName : keys) {
@@ -54,7 +100,8 @@ public class PackageGroup {
 	
 	public static void main(String[] args) {
 		PackageGroup group = new PackageGroup("instagram_class.graphml");
-		group.groupByName(4);
-		group.printPackages();
+		group.removeNodesWithoutPrefix("com.instagram.android.activity");
+		group.printRelations();
+		ODN.saveToGraphml(group.graph, "instagram_activity_odn.graphml");
 	}
 }
