@@ -12,6 +12,7 @@ public class PackageGroup {
 	
 	private Hashtable<String, Integer> pkgTable;
 	private Graph graph;
+	private int clsCount;
 	
 	public PackageGroup(String path) {
 		graph = ODN.getODN(path);
@@ -23,6 +24,7 @@ public class PackageGroup {
 		Iterator<Vertex> it = graph.getVertices().iterator();
 		while(it.hasNext()) {
 			Vertex v = it.next();
+			clsCount++;
 			String[] clsName = v.getId().toString().split("\\.");
 			String pkgName = "";
 			if(clsName.length >= prefixCount + 1) {
@@ -47,11 +49,12 @@ public class PackageGroup {
 		for(String pkgName : keys) {
 			System.out.println(pkgName + " " + pkgTable.get(pkgName));
 		}
+		System.out.println("Total Class Count: " + clsCount);
 	}
 	
 	public static void main(String[] args) {
 		PackageGroup group = new PackageGroup("instagram_class.graphml");
-		group.groupByName(3);
+		group.groupByName(4);
 		group.printPackages();
 	}
 }
