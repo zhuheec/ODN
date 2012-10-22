@@ -84,14 +84,14 @@ public class ComplexNetwork {
 	 */
 	public void computeDescendentsSecurityScore(Vertex v) {
 		v.setProperty(VertexProperty.IS_VISITED, true);
-		int parentSecurityScore = (int) v.getProperty(VertexProperty.SECURITY_SCORE);
+		int parentSecurityScore = Integer.parseInt(v.getProperty(VertexProperty.SECURITY_SCORE).toString());
 		// get inbound neighbors list
 		Iterator<Vertex> it = v.getVertices(Direction.IN).iterator();
 		while(it.hasNext()) {
 			Vertex neighbor = it.next();
-			boolean isSource = (boolean) neighbor.getProperty(VertexProperty.IS_SOURCE);
-			boolean isVisited = (boolean) neighbor.getProperty(VertexProperty.IS_VISITED);
-			int securityScore = (int) neighbor.getProperty(VertexProperty.SECURITY_SCORE);
+			boolean isSource = Boolean.getBoolean(neighbor.getProperty(VertexProperty.IS_SOURCE).toString());
+			boolean isVisited = Boolean.getBoolean(neighbor.getProperty(VertexProperty.IS_VISITED).toString());
+			int securityScore = Integer.parseInt(neighbor.getProperty(VertexProperty.SECURITY_SCORE).toString());
 			if(!isSource) {
 				neighbor.setProperty(VertexProperty.SECURITY_SCORE, securityScore + parentSecurityScore);
 				if(!isVisited) {
@@ -111,7 +111,7 @@ public class ComplexNetwork {
 			// get current node
 			Vertex v = it.next();
 			// get inbound degree
-			int in_degree = (int) v.getProperty(VertexProperty.IN_DEGREE);
+			int in_degree = Integer.parseInt(v.getProperty(VertexProperty.IN_DEGREE).toString());
 			if(inDegreeMap.containsKey(in_degree)) {
 				int in_count = inDegreeMap.get(in_degree) + 1;
 				inDegreeMap.put(in_degree, in_count);
@@ -119,7 +119,7 @@ public class ComplexNetwork {
 				inDegreeMap.put(in_degree, 1);
 			}
 			// get outbound degree
-			int out_degree = (int) v.getProperty(VertexProperty.OUT_DEGREE);
+			int out_degree = Integer.parseInt(v.getProperty(VertexProperty.OUT_DEGREE).toString());
 			if(outDegreeMap.containsKey(out_degree)) {
 				int out_count = outDegreeMap.get(out_degree) + 1;
 				outDegreeMap.put(out_degree, out_count);
