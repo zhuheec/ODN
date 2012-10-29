@@ -67,7 +67,7 @@ public class VertexPair {
 		// recursively perform DFS
 		log.debug("Starting to perform DFS recursively...");
 		depthFirst(visited);
-		log.debug("DFS done. Paths are reday for view and [PathTree] is also ready.");
+		log.debug("DFS done. Paths are ready for view and [PathTree] is also ready.");
 		
 		// initialize and calculate the map of paths with conditions 
 		pathConditionsMap = new HashMap<LinkedList<Vertex>, HashSet<String[]>>();
@@ -90,7 +90,7 @@ public class VertexPair {
 
 	/**
 	 * Perform depth-first search for paths from source to destination
-	 * @param visited The list of currently visited nodes
+	 * @param visitedVertices The list of currently visited nodes
 	 */
 	private void depthFirst(LinkedList<Vertex> visited) {
 		// get all neighbors of the last node in current path
@@ -98,29 +98,19 @@ public class VertexPair {
 		// examine adjacent nodes
 		for (Vertex v : vertices) {
 			// do not re-visit a node
-			if (visited.contains(v)) {
-				continue;
-			}
-			// add path to path list if reached the end node
-			if (v.getId().equals(endTag)) {
-				visited.add(v);
-				addPath(new LinkedList<Vertex>(visited));
+			if (!visited.contains(v)) {
+				// append current vertex to visited list
+				visited.addLast(v);
+				if(v.getId().equals(endTag)) {
+					// add path to path list if reached the end node
+					addPath(new LinkedList<Vertex>(visited));
+				} else {
+					// recursively call depth-first algorithm
+					depthFirst(visited);
+				}
+				// backtracking
 				visited.removeLast();
-				break;
 			}
-		}
-		// recursively call depth-first algorithm
-		for (Vertex v : vertices) {
-			// do not re-visit
-			if (visited.contains(v) || v.getId().equals(endTag)) {
-				continue;
-			}
-			// append current vertex to visited list
-			visited.addLast(v);
-			// recursively call self
-			depthFirst(visited);
-			// backtracking
-			visited.removeLast();
 		}
 	}
 	
@@ -139,7 +129,7 @@ public class VertexPair {
 			// do not add duplicate vertex
 			for(Vertex neighbor : treeNode.getVertices(Direction.OUT)) {
 				// check if current node exists in the tree path
-				if(neighbor.getProperty(ODN.CLASS_NAME_KEY).equals(current.getProperty(ODN.CLASS_NAME_KEY))) {
+				if(neighbor.getProperty(OdnGraph.CLASS_NAME_KEY).equals(current.getProperty(OdnGraph.CLASS_NAME_KEY))) {
 					isChild = true;
 					// change vertex ID in allPaths list to be consistent with tree
 					visited.set(index, neighbor);
@@ -148,12 +138,12 @@ public class VertexPair {
 					break;
 				}
 			}
-			// add path in the tree only when they are not duplucate
+			// add path in the tree only when they are not duplicate
 			if(!isChild) {
-				Vertex newNode = pathTree.addVertex(current.getProperty(ODN.CLASS_NAME_KEY).toString()
+				Vertex newNode = pathTree.addVertex(current.getProperty(OdnGraph.CLASS_NAME_KEY).toString()
 						+ ":" + pathCount);
-				newNode.setProperty(ODN.CLASS_NAME_KEY, current.getProperty(ODN.CLASS_NAME_KEY));
-				pathTree.addEdge(treeNode.getId() + ODN.RELATION_CONNECTOR + newNode.getId(), 
+				newNode.setProperty(OdnGraph.CLASS_NAME_KEY, current.getProperty(OdnGraph.CLASS_NAME_KEY));
+				pathTree.addEdge(treeNode.getId() + OdnGraph.RELATION_CONNECTOR + newNode.getId(), 
 						treeNode, newNode, "");
 				treeNode = newNode;
 				visited.set(index, newNode);
@@ -300,7 +290,7 @@ public class VertexPair {
 	private String getEdgeDisplayName(String[] edge) {
 		String srcVtxName = getVertexDisplayName(edge[0]);
 		String destVtxName = getVertexDisplayName(edge[1]);
-		String edgeId = srcVtxName + ODN.RELATION_CONNECTOR + destVtxName;
+		String edgeId = srcVtxName + OdnGraph.RELATION_CONNECTOR + destVtxName;
 		return edgeId;
 	}
 	
@@ -312,21 +302,21 @@ public class VertexPair {
 	private double getEdgeVulnerability(String[] edge) {
 		double vul = -1;
 		// Try either way: A-->B
-		Iterator<Edge> it = graph.getEdges(ODN.RELATION_NAME_KEY, 
+		Iterator<Edge> it = graph.getEdges(OdnGraph.RELATION_NAME_KEY, 
 				getEdgeDisplayName(edge)).iterator();
 		Edge e = null;
 		if(it.hasNext()) {
 			e = it.next();
 		} else {
 			// Try either way: B-->A
-			it = graph.getEdges(ODN.RELATION_NAME_KEY, 
+			it = graph.getEdges(OdnGraph.RELATION_NAME_KEY, 
 					getEdgeDisplayName(new String[] {edge[1], edge[0]})).iterator();
 			if(it.hasNext()) {
 				e = it.next();
 			}
 		}
 		if(e != null) {
-			vul = Double.parseDouble(e.getProperty(ODN.RELATION_VUL_KEY).toString());
+			vul = Double.parseDouble(e.getProperty(OdnGraph.RELATION_VUL_KEY).toString());
 		}
 		// return a negative value if edge does not exist
 		return vul;
@@ -368,7 +358,7 @@ public class VertexPair {
 			for (Vertex node : path) {
 				output.append("[" + node.getId() + "]");
 				if(node != path.getLast()) {
-					output.append(ODN.RELATION_CONNECTOR);
+					output.append(OdnGraph.RELATION_CONNECTOR);
 				}
 			}
 			log.debug(output);
@@ -399,7 +389,7 @@ public class VertexPair {
 			for (Vertex node : path) {
 				output.append("[" + getVertexDisplayName(node.getId().toString()) + "]");
 				if(node != path.getLast()) {
-					output.append(ODN.RELATION_CONNECTOR);
+					output.append(OdnGraph.RELATION_CONNECTOR);
 				}
 			}
 			// (2) print failed edges
@@ -421,49 +411,49 @@ public class VertexPair {
 		// this graph is directional
 		Graph graph = new TinkerGraph();
 		Vertex va = graph.addVertex("A");
-		va.setProperty(ODN.CLASS_NAME_KEY, "A");
+		va.setProperty(OdnGraph.CLASS_NAME_KEY, "A");
 		Vertex vb = graph.addVertex("B");
-		vb.setProperty(ODN.CLASS_NAME_KEY, "B");
+		vb.setProperty(OdnGraph.CLASS_NAME_KEY, "B");
 		Vertex vc = graph.addVertex("C");
-		vc.setProperty(ODN.CLASS_NAME_KEY, "C");
+		vc.setProperty(OdnGraph.CLASS_NAME_KEY, "C");
 		Vertex vd = graph.addVertex("D");
-		vd.setProperty(ODN.CLASS_NAME_KEY, "D");
+		vd.setProperty(OdnGraph.CLASS_NAME_KEY, "D");
 		Vertex ve = graph.addVertex("E");
-		ve.setProperty(ODN.CLASS_NAME_KEY, "E");
+		ve.setProperty(OdnGraph.CLASS_NAME_KEY, "E");
 		Vertex vf = graph.addVertex("F");
-		vf.setProperty(ODN.CLASS_NAME_KEY, "F");
+		vf.setProperty(OdnGraph.CLASS_NAME_KEY, "F");
 		
 		Edge ab = graph.addEdge(1, va, vb, "A-->B");
-		ab.setProperty(ODN.RELATION_NAME_KEY, "A-->B");
-		ab.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		ab.setProperty(OdnGraph.RELATION_NAME_KEY, "A-->B");
+		ab.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge ac = graph.addEdge(2, va, vc, "A-->C");
-		ac.setProperty(ODN.RELATION_NAME_KEY, "A-->C");
-		ac.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		ac.setProperty(OdnGraph.RELATION_NAME_KEY, "A-->C");
+		ac.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge bd = graph.addEdge(3, vb, vd, "B-->D");
-		bd.setProperty(ODN.RELATION_NAME_KEY, "B-->D");
-		bd.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		bd.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->D");
+		bd.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge be = graph.addEdge(4, vb, ve, "B-->E");
-		be.setProperty(ODN.RELATION_NAME_KEY, "B-->E");
-		be.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		be.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->E");
+		be.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge bf = graph.addEdge(5, vb, vf, "B-->F");
-		bf.setProperty(ODN.RELATION_NAME_KEY, "B-->F");
-		bf.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		bf.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->F");
+		bf.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge ce = graph.addEdge(6, vc, ve, "C-->E");
-		ce.setProperty(ODN.RELATION_NAME_KEY, "C-->E");
-		ce.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		ce.setProperty(OdnGraph.RELATION_NAME_KEY, "C-->E");
+		ce.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge cf = graph.addEdge(7, vc, vf, "C-->F");
-		cf.setProperty(ODN.RELATION_NAME_KEY, "C-->F");
-		cf.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		cf.setProperty(OdnGraph.RELATION_NAME_KEY, "C-->F");
+		cf.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		Edge ef = graph.addEdge(8, ve, vf, "E-->F");
-		ef.setProperty(ODN.RELATION_NAME_KEY, "E-->F");
-		ef.setProperty(ODN.RELATION_VUL_KEY, 0.5);
+		ef.setProperty(OdnGraph.RELATION_NAME_KEY, "E-->F");
+		ef.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
 		
 		VertexPair vul = new VertexPair(graph, vb, ve);
 		vul.printPathsWithConditions();
