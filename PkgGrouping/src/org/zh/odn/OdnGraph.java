@@ -24,6 +24,7 @@ public class OdnGraph extends TinkerGraph {
 	public static final String CLASS_NAME_KEY = "className";
 	public static final String RELATION_NAME_KEY = "relationName";
 	public static final String RELATION_VUL_KEY = "vulnerability";
+	public static final String VISITED_KEY = "visited";
 	public static final String RELATION_CONNECTOR = "-->";
 	private static final Logger log = Logger.getLogger(OdnGraph.class);
 	static { log.setLevel(Level.DEBUG); }
@@ -42,6 +43,8 @@ public class OdnGraph extends TinkerGraph {
 			int vcount = 0;
 			for(Vertex vertex : this.getVertices()) {
 				vertex.setProperty(CLASS_NAME_KEY, vertex.getId());
+				// set the flag indicating it is not visited yet
+				vertex.setProperty(VISITED_KEY, false);
 				vcount++;
 			}
 			log.debug("All [" + vcount + "] vertices are ready. Now preparing edges...");
@@ -108,9 +111,9 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		Graph graph = new OdnGraph("instagram_class.graphml", "com.instagram.android.activity");
-		Vertex start = graph.getVertex("com.instagram.android.activity.TumblrAuthActivity");
-		Vertex end = graph.getVertex("com.instagram.android.activity.XAuthActivity");
+		Graph graph = new OdnGraph("instagram_class.graphml", "com.instagram.api.request");
+		Vertex start = graph.getVertex("com.instagram.api.request.AddAvatarHelper");
+		Vertex end = graph.getVertex("com.instagram.api.request.OpenGraphActionRequest");
 		VertexPair vp = new VertexPair(graph, start, end);
 		log.debug(vp.getVulnerability());
 	}

@@ -4,6 +4,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -11,12 +14,21 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class OdnClassifier {
 	
+	private static final Logger log = Logger.getLogger(OdnClassifier.class);
+	static { log.setLevel(Level.DEBUG); }
+	
 	private Hashtable<String, Integer> pkgTable;
 	private Graph graph;
 	
-	public OdnClassifier(String path) {
-		graph = new OdnGraph(path);
+	public OdnClassifier(Graph graph) {
+		log.debug("Initializing ODN Classifer...");
+		this.graph = graph;
 		pkgTable = new Hashtable<String, Integer>();
+		log.debug("Finished initializing ODN Classifer.");
+	}
+	
+	public OdnClassifier(String path) {
+		this(new OdnGraph(path));
 	}
 	
 	public void groupByName(int prefixCount) {
@@ -47,30 +59,40 @@ public class OdnClassifier {
 		Iterator<Vertex> it = graph.getVertices().iterator();
 		while(it.hasNext()) {
 			Vertex v = it.next();
-			System.out.println(v.getId());
+			log.debug("Class [ " + v.getId() +" ]");
 		}
+	}
+	
+	public void printClasses(String prefix) {
+		log.debug("Printing all classes with prefix [" + prefix + "]...");
+		int count = 0;
+		for(Vertex v : graph.getVertices()) {
+			if(v.getId().toString().startsWith(prefix)) {
+				log.debug("Class [ " + v.getId() +" ]");
+				count++;
+			}
+		}
+		log.debug("Done printing [" + count + "] classes with prefix [" + prefix + "].");
 	}
 	
 	public void printRelations() {
 		Iterator<Edge> it = graph.getEdges().iterator();
 		while(it.hasNext()) {
 			Edge ed = it.next();
-			System.out.println(ed.getVertex(Direction.IN).getId() + "  -->  " + ed.getVertex(Direction.OUT).getId());
+			log.debug("Relation [ " + ed.getVertex(Direction.IN).getId() + "  -->  " + ed.getVertex(Direction.OUT).getId() +" ]");
 		}
 	}
 	
-	
-	
-	public void printPackages() {
+	public void printGroups() {
 		TreeSet<String> keys = new TreeSet<String>(pkgTable.keySet());
 		for(String pkgName : keys) {
-			System.out.println(pkgName + " " + pkgTable.get(pkgName));
+			log.debug("Package group [ " + pkgName + " ], class count [ " + pkgTable.get(pkgName) + " ]");
 		}
 	}
 	
 	public static void main(String[] args) {
 		OdnClassifier group = new OdnClassifier("instagram_class.graphml");
 		group.groupByName(4);
-		group.printPackages();
+		group.printClasses("com.instagram.api.request");
 	}
 }

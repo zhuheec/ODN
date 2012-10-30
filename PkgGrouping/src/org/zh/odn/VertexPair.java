@@ -82,7 +82,7 @@ public class VertexPair {
 	 */
 	private <T> LinkedList<T> toLinkedList(Iterable<T> iterable) {
 		LinkedList<T> list = new LinkedList<T>();
-	    for (T t : iterable) {
+		for (T t : iterable) {
 	        list.add(t);
 	    }
 	    return list;
@@ -94,7 +94,8 @@ public class VertexPair {
 	 */
 	private void depthFirst(LinkedList<Vertex> visited) {
 		// get all neighbors of the last node in current path
-		LinkedList<Vertex> vertices = toLinkedList(visited.getLast().getVertices(Direction.BOTH));
+		LinkedList<Vertex> vertices = this.toLinkedList(visited.getLast().getVertices(Direction.BOTH));
+		// remove visited neighbors
 		// examine adjacent nodes
 		for (Vertex v : vertices) {
 			// do not re-visit a node
@@ -185,16 +186,33 @@ public class VertexPair {
 		LinkedList<String[]> failedEdges = new LinkedList<String[]>();
 		log.debug("[FailedEdgesList] has been initialized.");
 		
+		// get maximum path length to consider
+		int maxValidPathLen = getMaxValidPathLength(2);
+		
 		LinkedList<Vertex> prevPath = null;
 		for(LinkedList<Vertex> path : allPaths) {
-			// add and merge the new failed edge
-			String[] currFailedEdge = getFailedEdge(prevPath, path);
-			if(currFailedEdge != null) {
-				addAndMerge(failedEdges, currFailedEdge);
+			if(path.size() <= maxValidPathLen) {
+				// add and merge the new failed edge
+				String[] currFailedEdge = getFailedEdge(prevPath, path);
+				if(currFailedEdge != null) {
+					addAndMerge(failedEdges, currFailedEdge);
+				}
+				pathConditionsMap.put(new LinkedList<Vertex>(path), new HashSet<String[]>(failedEdges));
+				prevPath = path;
 			}
-			pathConditionsMap.put(new LinkedList<Vertex>(path), new HashSet<String[]>(failedEdges));
-			prevPath = path;
 		}
+	}
+	
+	private int getMaxValidPathLength(int offset) {
+		// find the minimum path length among all paths
+		int minPathLen = Integer.MAX_VALUE;
+		for(LinkedList<Vertex> path : allPaths) {
+			if(path.size() < minPathLen) {
+				minPathLen = path.size();
+			}
+		}
+		// return min length plus offset
+		return minPathLen + offset;
 	}
 	
 	/**
