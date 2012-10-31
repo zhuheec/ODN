@@ -3,6 +3,7 @@ package org.zh.odn.trace;
 public class A {
 	public A() {
 		new B();
+		OdnTracer.trace(this);
 	}
 	
 	public static void main(String[] args) {
@@ -13,6 +14,6 @@ public class A {
 
 class B {
 	public B() {
-		OdnTracer.trace();
+		OdnTracer.trace(this);
 	}
 }
