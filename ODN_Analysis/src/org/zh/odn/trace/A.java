@@ -2,18 +2,19 @@ package org.zh.odn.trace;
 
 public class A {
 	public A() {
-		new B();
-		OdnTracer.trace(this);
+		B b = new B("test");
+		ObjectRelation.getInstance().add(this, b);
 	}
 	
 	public static void main(String[] args) {
-		A a = new A();
-		System.out.println(a);
+		new A();
+		new A();
+		ObjectRelation.getInstance().printAll();
 	}
 }
 
 class B {
-	public B() {
-		OdnTracer.trace(this);
+	public B(String s) {
+		ObjectRelation.getInstance().add(this, s);
 	}
 }
