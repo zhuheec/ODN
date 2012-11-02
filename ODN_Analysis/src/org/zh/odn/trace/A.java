@@ -7,13 +7,8 @@ public class A {
 	}
 	
 	public static void main(String[] args) {
-		//new A();
-		//OdnTracer.printTrace();
-		String s = "111::222";
-		String[] arr = s.split(":::");
-		for (String ss : arr) {
-			System.out.println(ss);
-		}
+		A a = new A();
+		System.out.println(a);
 	}
 }
 
