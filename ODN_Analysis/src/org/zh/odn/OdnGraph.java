@@ -23,7 +23,8 @@ public class OdnGraph extends TinkerGraph {
 	
 	public static final String CLASS_NAME_KEY = "className";
 	public static final String RELATION_NAME_KEY = "relationName";
-	public static final String RELATION_VUL_KEY = "vulnerability";
+	public static final String RELATION_VUL_KEY = "propagate_vul";
+	public static final String SELF_VUL_KEY = "self_vul";
 	public static final String VISITED_KEY = "visited";
 	public static final String RELATION_CONNECTOR = "-->";
 	private static final Logger log = Logger.getLogger(OdnGraph.class);
@@ -33,7 +34,7 @@ public class OdnGraph extends TinkerGraph {
 	 * Instantiate of ODN according to specified GraphML file.
 	 * @param graphFilePath Input GraphML file
 	 */
-	public OdnGraph(String graphFilePath) {
+	public OdnGraph(String graphFilePath, double selfVul, double propagateVul) {
 		log.debug("Loading ODN from file [" + graphFilePath + "]...");
 		try {
 			// read the initial ODN from file
@@ -45,6 +46,7 @@ public class OdnGraph extends TinkerGraph {
 				vertex.setProperty(CLASS_NAME_KEY, vertex.getId());
 				// set the flag indicating it is not visited yet
 				vertex.setProperty(VISITED_KEY, false);
+				vertex.setProperty(SELF_VUL_KEY, selfVul);
 				vcount++;
 			}
 			log.debug("All [" + vcount + "] vertices are ready. Now preparing edges...");
@@ -55,7 +57,7 @@ public class OdnGraph extends TinkerGraph {
 				//		+ edge.getVertex(Direction.IN).getId().toString();
 				edge.setProperty(RELATION_NAME_KEY, edge.getId());
 				// TODO: calculate vulnerability of edges and vertices
-				edge.setProperty(RELATION_VUL_KEY, 0.5);
+				edge.setProperty(RELATION_VUL_KEY, propagateVul);
 				ecount++;
 			}
 			log.debug("All [" + ecount + "] edges are ready. Finished loading ODN.");
@@ -77,8 +79,8 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
-	public OdnGraph(String graphFilePath, String prefix) {
-		this(graphFilePath);
+	public OdnGraph(String graphFilePath, String prefix, double selfVul, double propagateVul) {
+		this(graphFilePath, selfVul, propagateVul);
 		log.debug("Loading Sub ODN from file [" + graphFilePath + "] with prefix [" + prefix + "]...");
 		LinkedList<Vertex> removeList = new LinkedList<Vertex>();
 		LinkedList<Vertex> reserveList = new LinkedList<Vertex>();
@@ -129,7 +131,7 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw");
+		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", 0.1, 0.2);
 		graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
 		//Vertex end = graph.getVertex("com.even.trendcraw.MySqlConnection@771153740");
