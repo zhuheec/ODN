@@ -25,6 +25,7 @@ public class OdnGraph extends TinkerGraph {
 	public static final String RELATION_NAME_KEY = "relationName";
 	public static final String RELATION_VUL_KEY = "propagate_vul";
 	public static final String SELF_VUL_KEY = "self_vul";
+	public static final String OVERALL_VUL_KEY = "overall_vul";
 	public static final String VISITED_KEY = "visited";
 	public static final String RELATION_CONNECTOR = "-->";
 	private static final Logger log = Logger.getLogger(OdnGraph.class);
@@ -130,8 +131,39 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
+	public double getVulnerability(String objectId) {
+		double vul = -1.0;
+		Vertex dst = this.getVertex(objectId);
+		if(dst != null) {
+			vul = 0.0;
+			log.debug("Calculating the vulnerability of Object [" + objectId +"]...");
+			for(Vertex src : this.getVertices()) {
+				if(!src.equals(dst)) {
+					VertexPair vp = new VertexPair(this, src, dst);
+					vul += vp.getVulnerability();
+				}
+			}
+			log.debug("Done. Vulnerability of Object [" + objectId +"] is " + String.format("%.3f", vul) +".");
+		}
+		return vul;
+	}
+	
+	public void printAllVulnerabilities() {
+		log.debug("Starting to calculate all vulnerabilities of the ODN...");
+		for(Vertex v : this.getVertices()) {
+			double vul = getVulnerability(v.getId().toString());
+			v.setProperty(OVERALL_VUL_KEY, vul);
+		}
+		log.debug("Done calculating all vulnerabilities of the ODN.");
+		for(Vertex v : this.getVertices()) {
+			log.debug("Overall vulnerability of [" + v.getId() + "] is ["+ String.format("%.3f", v.getProperty(OVERALL_VUL_KEY)) +"].");
+		}
+		log.debug("All vulnerabilities have been printed.");
+	}
+	
 	public static void main(String[] args) {
 		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", 0.1, 0.2);
+		graph.printAllVulnerabilities();
 		graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
 		//Vertex end = graph.getVertex("com.even.trendcraw.MySqlConnection@771153740");
