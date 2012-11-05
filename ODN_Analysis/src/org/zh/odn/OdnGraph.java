@@ -149,12 +149,17 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public void printAllVulnerabilities() {
-		log.debug("Starting to calculate all vulnerabilities of the ODN...");
+		log.debug("Starting to print all vulnerabilities of the ODN...");
 		for(Vertex v : this.getVertices()) {
 			double vul = getVulnerability(v.getId().toString());
 			v.setProperty(OVERALL_VUL_KEY, vul);
 		}
 		log.debug("Done calculating all vulnerabilities of the ODN.");
+		
+	}
+	
+	public void calculateAllVulnerabilities() {
+		log.debug("Starting to calculate all vulnerabilities of the ODN...");
 		for(Vertex v : this.getVertices()) {
 			log.debug("Overall vulnerability of [" + v.getId() + "] is ["+ String.format("%.3f", v.getProperty(OVERALL_VUL_KEY)) +"].");
 		}
@@ -163,6 +168,7 @@ public class OdnGraph extends TinkerGraph {
 	
 	public static void main(String[] args) {
 		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", 0.1, 0.2);
+		graph.calculateAllVulnerabilities();
 		graph.printAllVulnerabilities();
 		graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
