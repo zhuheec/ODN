@@ -17,20 +17,25 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 public class ObjectRelation {
+
 	public static final boolean DEBUG = true;
 	public static final String RELATION_SYNTAX = "-->";
+
 	private static ObjectRelation instance = null;
 	private static Logger log = Logger.getLogger(ObjectRelation.class);
 	static{ 
 		instance = new ObjectRelation(); 
 		log.setLevel(Level.DEBUG);
 	}
+
 	public static ObjectRelation getInstance() {
 		return instance;
 	}
@@ -42,10 +47,10 @@ public class ObjectRelation {
 	}
 	
 	private Vertex getOrCreateObject(Object obj) {
-		String objStr = obj.getClass().getName() + "@" + obj.hashCode();
-		Vertex ret = objectGraph.getVertex(objStr);
+		String objId = obj.getClass().getName() + "@" + obj.hashCode();
+		Vertex ret = objectGraph.getVertex(objId);
 		if (ret == null) {
-			ret = objectGraph.addVertex(objStr);
+			ret = objectGraph.addVertex(objId);
 		}
 		return ret;
 	}
@@ -84,6 +89,12 @@ public class ObjectRelation {
 			} catch (IOException e) {
 				log.error(e.getMessage());
 			}
+		}
+	}
+	
+	public void printAll() {
+		for(Edge e : objectGraph.getEdges()) {
+			log.debug(e.getVertex(Direction.OUT) + RELATION_SYNTAX + e.getVertex(Direction.IN));
 		}
 	}
 }
