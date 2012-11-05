@@ -51,9 +51,9 @@ public class OdnGraph extends TinkerGraph {
 			// set edge name
 			int ecount = 0;
 			for(Edge edge : this.getEdges()) {
-				String relationName = edge.getVertex(Direction.OUT).getId().toString() + RELATION_CONNECTOR
-						+ edge.getVertex(Direction.IN).getId().toString();
-				edge.setProperty(RELATION_NAME_KEY, relationName);
+				//String relationName = edge.getVertex(Direction.OUT).getId().toString() + RELATION_CONNECTOR
+				//		+ edge.getVertex(Direction.IN).getId().toString();
+				edge.setProperty(RELATION_NAME_KEY, edge.getId());
 				// TODO: calculate vulnerability of edges and vertices
 				edge.setProperty(RELATION_VUL_KEY, 0.5);
 				ecount++;
@@ -64,19 +64,37 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
+	private void rewire(Vertex src, String prefix, Vertex lastVertex) {
+		for(Vertex v : src.getVertices(Direction.OUT)) {
+			if(!v.getId().toString().startsWith(prefix)) {
+				String edgeId = lastVertex.getId() + RELATION_CONNECTOR + v.getId(); 
+				if(this.getEdge(edgeId) == null) {
+					this.addEdge(edgeId, lastVertex, v, "");
+				}
+			} else {
+				rewire(v, prefix, lastVertex);
+			}
+		}
+	}
+	
 	public OdnGraph(String graphFilePath, String prefix) {
 		this(graphFilePath);
 		log.debug("Loading Sub ODN from file [" + graphFilePath + "] with prefix [" + prefix + "]...");
 		LinkedList<Vertex> removeList = new LinkedList<Vertex>();
+		LinkedList<Vertex> reserveList = new LinkedList<Vertex>();
 		log.debug("Checking each vertex in original ODN if they start with prefix [" + prefix + "]...");
 		for(Vertex v : this.getVertices()) {
 			if(!v.getId().toString().startsWith(prefix)) {
 				removeList.add(v);
 			} else {
+				reserveList.add(v);
 				log.debug(v.getId());
 			}
 		}
 		log.debug("Finished checking prefix [" + prefix + "]. Found [" + removeList.size() + "] vertices. Removing them...");
+		for(Vertex vertexToReserve : reserveList) {
+			rewire(vertexToReserve, prefix, vertexToReserve);
+		}
 		for(Vertex vertexToRemove : removeList) {
 			this.removeVertex(vertexToRemove);
 		}
@@ -111,10 +129,11 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		Graph graph = new OdnGraph("instagram_class.graphml", "com.instagram.api.request");
-		Vertex start = graph.getVertex("com.instagram.api.request.AddAvatarHelper");
-		Vertex end = graph.getVertex("com.instagram.api.request.OpenGraphActionRequest");
-		VertexPair vp = new VertexPair(graph, start, end);
-		log.debug(vp.getVulnerability());
+		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw");
+		graph.saveToGraphml("odn_inner.graphml");
+		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
+		//Vertex end = graph.getVertex("com.even.trendcraw.MySqlConnection@771153740");
+		//VertexPair vp = new VertexPair(graph, start, end);
+		//log.debug(vp.getVulnerability());
 	}
 }
