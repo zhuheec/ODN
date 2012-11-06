@@ -29,6 +29,7 @@ public class OdnGraph extends TinkerGraph {
 
 	private static final long serialVersionUID = 3403585500487708004L;
 	
+	public static final int FULL_VUL = 1000;
 	public static final String CLASS_NAME_KEY = "className";
 	public static final String RELATION_NAME_KEY = "relationName";
 	public static final String RELATION_VUL_KEY = "propagate_vul";
@@ -143,17 +144,18 @@ public class OdnGraph extends TinkerGraph {
 		double vul = -1.0;
 		Vertex dst = this.getVertex(objectId);
 		if(dst != null) {
-			vul = 0.0;
+			vul = 1.0;
 			log.debug("Calculating the vulnerability of Object [" + objectId +"]...");
 			for(Vertex src : this.getVertices()) {
 				if(!src.equals(dst)) {
 					VertexPair vp = new VertexPair(this, src, dst);
-					vul += vp.getVulnerability();
+					vul *= (1 - vp.getVulnerability());
 				}
 			}
+			vul = 1 - vul;
 			log.debug("Done. Vulnerability of Object [" + objectId +"] is " + String.format("%.3f", vul) +".");
 		}
-		return vul;
+		return vul * FULL_VUL;
 	}
 	
 	public void calculateAllVulnerabilities() {
@@ -241,10 +243,24 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
+	public static int getNeighborsCount(Vertex v) {
+		int count = 0;
+		for(Vertex nbr : v.getVertices(Direction.BOTH)) {
+			count++;
+		}
+		return count;
+	}
+	
 	public static void main(String[] args) {
-
-		
-
+		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", 0.1, 0.1);
+		int vcount = 0;
+		for(Vertex v : graph.getVertices()) {
+			vcount++;
+			log.debug("Object [" + v.getId() + "] has [" + getNeighborsCount(v) + "] neighbors.");
+		}
+		log.debug("total vertices: [" + vcount + "].");
+		//step1();
+		//step2();
 		
 		//graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
