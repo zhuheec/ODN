@@ -1,9 +1,17 @@
 package org.zh.odn;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import org.apache.log4j.Level;
@@ -148,7 +156,7 @@ public class OdnGraph extends TinkerGraph {
 		return vul;
 	}
 	
-	public void printAllVulnerabilities() {
+	public void calculateAllVulnerabilities() {
 		log.debug("Starting to print all vulnerabilities of the ODN...");
 		for(Vertex v : this.getVertices()) {
 			double vul = getVulnerability(v.getId().toString());
@@ -158,7 +166,7 @@ public class OdnGraph extends TinkerGraph {
 		
 	}
 	
-	public void calculateAllVulnerabilities() {
+	public void printAllVulnerabilities() {
 		log.debug("Starting to calculate all vulnerabilities of the ODN...");
 		for(Vertex v : this.getVertices()) {
 			log.debug("Overall vulnerability of [" + v.getId() + "] is ["+ String.format("%.3f", v.getProperty(OVERALL_VUL_KEY)) +"].");
@@ -166,11 +174,79 @@ public class OdnGraph extends TinkerGraph {
 		log.debug("All vulnerabilities have been printed.");
 	}
 	
+	public void outputVulnerabilities(String path) {
+		try {
+			log.debug("Starting to output all vulnerabilities of the ODN...");
+			Hashtable<String, String> vulTable = new Hashtable<String, String>();
+			for(Vertex v : this.getVertices()) {
+				vulTable.put(v.getId().toString().split("@")[0], 
+						String.format("%.3f", v.getProperty(OVERALL_VUL_KEY)));
+			}
+			BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+			for(String key : vulTable.keySet()) {
+				writer.write(key + "\t" + vulTable.get(key));
+				writer.newLine();
+			}
+			writer.flush();
+			writer.close();
+			log.debug("All vulnerabilities have been saved to file.");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private static void step1() {
+		for(int i = 1; i <= 10; i++) {
+			for(int j = 1; j <= 10; j++) {
+				OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", i/10.0, j/10.0);
+				graph.calculateAllVulnerabilities();
+				graph.outputVulnerabilities("results/vul_" + i + "_" + j + ".txt");
+			}
+		}
+	}
+	
+	private static void step2() {
+		try {
+			Hashtable<String, BufferedWriter> objName = new Hashtable<String, BufferedWriter>();
+			for(int i = 1; i <= 10; i++) {
+				for(int j = 1; j <= 10; j++) {
+					BufferedReader br = new BufferedReader(new FileReader("results/vul_" + i + "_" + j + ".txt"));
+					String line = null;
+					while((line = br.readLine()) != null) {
+						String[] data = line.split("\t");
+						BufferedWriter bw = null;
+						if(objName.containsKey(data[0])) {
+							bw = objName.get(data[0]);
+						} else {
+							bw = new BufferedWriter(new FileWriter("results/" + data[0] + ".txt"));
+							objName.put(data[0], bw);
+						}
+						bw.write(data[1] + "\t");
+					}
+					br.close();
+				}
+				for(String obj : objName.keySet()) {
+					objName.get(obj).newLine();
+				}
+			}
+			for(String obj : objName.keySet()) {
+				objName.get(obj).flush();
+				objName.get(obj).close();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
-		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", 0.1, 0.2);
-		graph.calculateAllVulnerabilities();
-		graph.printAllVulnerabilities();
-		graph.saveToGraphml("odn_inner.graphml");
+
+		
+
+		
+		//graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
 		//Vertex end = graph.getVertex("com.even.trendcraw.MySqlConnection@771153740");
 		//VertexPair vp = new VertexPair(graph, start, end);
