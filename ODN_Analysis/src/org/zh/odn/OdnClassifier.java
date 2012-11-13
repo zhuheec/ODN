@@ -28,7 +28,7 @@ public class OdnClassifier {
 	}
 	
 	public OdnClassifier(String path) {
-		this(new OdnGraph(path));
+		this(new OdnGraph(path, 0.1, 0.1));
 	}
 	
 	public void groupByName(int prefixCount) {

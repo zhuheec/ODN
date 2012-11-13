@@ -30,6 +30,8 @@ public class VertexPair {
 	private Graph pathTree;
 	private HashMap<LinkedList<Vertex>, HashSet<String[]>> pathConditionsMap;
 	private int pathCount = 0;
+	private double startSelfVul = 1.0;
+	
 	
 	/**
 	 * Create an instance for vulnerability calculation between two nodes.
@@ -44,6 +46,8 @@ public class VertexPair {
 		
 		// set start vertex
 		this.startTag = startVertex.getId().toString();
+		// set self vulnerability of start vertex
+		startSelfVul = Double.parseDouble(startVertex.getProperty(OdnGraph.SELF_VUL_KEY).toString());
 		log.debug("[StartTag] has been set to ["+ startTag +"].");
 		
 		// set end vertex
@@ -362,7 +366,7 @@ public class VertexPair {
 			// (3) add together values of different paths because the event is independent
 			vul += pathVul;
 		}
-		return vul;
+		return (vul * startSelfVul);
 	}
 
 	/**
