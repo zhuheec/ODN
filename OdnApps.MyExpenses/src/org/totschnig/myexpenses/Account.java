@@ -1,3 +1,4 @@
+// ODN DONE
 /*   This file is part of My Expenses.
  *   My Expenses is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +19,8 @@ package org.totschnig.myexpenses;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
+
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -260,6 +263,7 @@ public class Account {
     }
     account = new Account(id);
     accounts.put(id, account);
+    ObjectRelation.addRelation(accounts, account);
     return account;
   }
   public static boolean delete(long id) {
@@ -281,6 +285,7 @@ public class Account {
   public Account() {
     this.openingBalance = new Money(null,(long) 0);
     this.type = Type.CASH;
+    ObjectRelation.addRelation(this, openingBalance, type);
   }
   public Account(String label, long openingBalance, String description, Currency currency) {
     this.label = label;
@@ -288,6 +293,7 @@ public class Account {
     this.openingBalance = new Money(currency,openingBalance);
     this.description = description;
     this.type = Type.CASH;
+    ObjectRelation.addRelation(this, label, currency, openingBalance, description, type);
   }
   
   /**
@@ -300,6 +306,7 @@ public class Account {
   private Account(long id) throws DataObjectNotFoundException {
     this.id = id;
     Cursor c = mDbHelper.fetchAccount(id);
+    ObjectRelation.addRelation(c, mDbHelper);
     if (c.getCount() == 0) {
       throw new DataObjectNotFoundException();
     }
@@ -307,25 +314,34 @@ public class Account {
     this.label = c.getString(c.getColumnIndexOrThrow("label"));
     this.description = c.getString(c.getColumnIndexOrThrow("description"));
     String strCurrency = c.getString(c.getColumnIndexOrThrow("currency"));
+    ObjectRelation.addRelation(label, c);
+    ObjectRelation.addRelation(description, c);
     try {
       this.currency = Currency.getInstance(strCurrency);
+      ObjectRelation.addRelation(currency, c);
     } catch (IllegalArgumentException e) {
       Log.e("MyExpenses",strCurrency + " is not defined in ISO 4217");
       this.currency = Currency.getInstance(Locale.getDefault());
     }    
     this.openingBalance = new Money(this.currency,
         c.getLong(c.getColumnIndexOrThrow("opening_balance")));
+    ObjectRelation.addRelation(openingBalance, currency, c);
     try {
       this.type = Type.valueOf(c.getString(c.getColumnIndexOrThrow("type")));
+      ObjectRelation.addRelation(type, c);
     } catch (IllegalArgumentException ex) { 
       this.type = Type.CASH;
     }
     c.close();
+    ObjectRelation.addRelation(this, this.id, this.label, this.description,
+    		this.currency, this.openingBalance, this.type);
   }
 
    public void setCurrency(String currency) throws IllegalArgumentException {
      this.currency = Currency.getInstance(currency);
      openingBalance.setCurrency(this.currency);
+     ObjectRelation.addRelation(this, this.currency);
+     ObjectRelation.addRelation(openingBalance, currency);
    }
   
   /**
@@ -344,6 +360,7 @@ public class Account {
     openingBalance.setAmountMinor(currentBalance);
     mDbHelper.updateAccountOpeningBalance(id,currentBalance);
     mDbHelper.deleteTransactionAll(this);
+    ObjectRelation.addRelation(mDbHelper, id, currentBalance);
   }
   
   /**
@@ -369,6 +386,7 @@ public class Account {
     }
     if (!accounts.containsKey(id))
       accounts.put(id, this);
+    ObjectRelation.addRelation(accounts, id, this);
     return id;
   }
 }

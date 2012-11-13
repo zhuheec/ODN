@@ -1,3 +1,4 @@
+// ODN DONE
 //http://code.google.com/p/simple-quickactions/
 
 package org.example.qberticus.quickactions;
@@ -77,9 +78,12 @@ public class BetterPopupWindow {
     onShow();
 
     if(this.background == null) {
-      this.window.setBackgroundDrawable(new BitmapDrawable());
+    	BitmapDrawable bd = new BitmapDrawable();
+      this.window.setBackgroundDrawable(bd);
+      ObjectRelation.addRelation(window, bd);
     } else {
       this.window.setBackgroundDrawable(this.background);
+      ObjectRelation.addRelation(window, background);
     }
 
     // if using PopupWindow#setBackgroundDrawable this is the only values of the width and hight that make it work
@@ -92,10 +96,13 @@ public class BetterPopupWindow {
     this.window.setOutsideTouchable(true);
 
     this.window.setContentView(this.root);
+    
+    
   }
 
   public void setBackgroundDrawable(Drawable background) {
     this.background = background;
+    ObjectRelation.addRelation(window, this.background);
   }
 
   /**
@@ -107,6 +114,7 @@ public class BetterPopupWindow {
   public void setContentView(View root) {
     this.root = root;
     this.window.setContentView(root);
+    ObjectRelation.addRelation(window, root);
   }
 
   /**
@@ -117,7 +125,9 @@ public class BetterPopupWindow {
   public void setContentView(int layoutResID) {
     LayoutInflater inflator =
         (LayoutInflater) this.anchor.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    this.setContentView(inflator.inflate(layoutResID, null));
+    View view = inflator.inflate(layoutResID, null);
+    this.setContentView(view);
+    ObjectRelation.addRelation(this, view);
   }
 
   /**
@@ -127,6 +137,7 @@ public class BetterPopupWindow {
    */
   public void setOnDismissListener(PopupWindow.OnDismissListener listener) {
     this.window.setOnDismissListener(listener);
+    ObjectRelation.addRelation(window, listener);
   }
 
   /**
@@ -150,6 +161,7 @@ public class BetterPopupWindow {
     this.window.setAnimationStyle(R.style.Animations_PopDownMenu);
 
     this.window.showAsDropDown(this.anchor, xOffset, yOffset);
+    ObjectRelation.addRelation(window, anchor);
   }
 
   /**
@@ -174,6 +186,7 @@ public class BetterPopupWindow {
 
     int[] location = new int[2];
     this.anchor.getLocationOnScreen(location);
+    ObjectRelation.addRelation(anchor, location);
 
     Rect anchorRect =
         new Rect(location[0], location[1], location[0] + this.anchor.getWidth(), location[1]

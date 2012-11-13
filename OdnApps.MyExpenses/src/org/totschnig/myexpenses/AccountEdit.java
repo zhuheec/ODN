@@ -1,3 +1,4 @@
+// ODN DONE
 /*   This file is part of My Expenses.
  *   My Expenses is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +20,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Currency;
 import java.util.Locale;
+
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -86,12 +89,15 @@ public class AccountEdit extends EditActivity {
     currencyCodes = Account.getCurrencyCodes();
     currencyDescs = Account.getCurrencyDescs();
     
+    ObjectRelation.addRelation(this, currencyCodes, currencyDescs);
+    
     setContentView(R.layout.one_account);
     configAmountInput();
 
     mLabelText = (EditText) findViewById(R.id.Label);
     mDescriptionText = (EditText) findViewById(R.id.Description);
-
+    ObjectRelation.addRelation(this, mLabelText, mDescriptionText);
+    
     TextView openingBalanceLabel = (TextView) findViewById(R.id.OpeningBalanceLabel); 
     if (mMinorUnitP) {
       openingBalanceLabel.setText(getString(R.string.opening_balance) + "(¢)");
@@ -103,6 +109,10 @@ public class AccountEdit extends EditActivity {
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
         android.R.layout.simple_dropdown_item_1line, currencyCodes);
     mCurrencyText.setAdapter(adapter);
+    
+    ObjectRelation.addRelation(this, mCurrencyText);
+    ObjectRelation.addRelation(mCurrencyText, adapter);
+    ObjectRelation.addRelation(adapter, currencyCodes);
     
     currencyInformer = new TextWatcher() {
       public void afterTextChanged(Editable s) {
@@ -117,6 +127,8 @@ public class AccountEdit extends EditActivity {
       public void beforeTextChanged(CharSequence s, int start, int count, int after){}
       public void onTextChanged(CharSequence s, int start, int before, int count){}
     };
+    
+    ObjectRelation.addRelation(this, currencyInformer);
 
     mCurrencyButton = (Button) findViewById(R.id.Select);
     mCurrencyButton.setOnClickListener(new View.OnClickListener() {
@@ -127,6 +139,8 @@ public class AccountEdit extends EditActivity {
       }
     });
     
+    ObjectRelation.addRelation(this, mCurrencyButton);
+    
     mTypeButton = (Button) findViewById(R.id.TaType);
     mTypeButton.setOnClickListener(new View.OnClickListener() {
 
@@ -134,6 +148,8 @@ public class AccountEdit extends EditActivity {
         showDialog(TYPE_DIALOG_ID);
       }
     });
+    
+    ObjectRelation.addRelation(this, mTypeButton);
     
     Button confirmButton = (Button) findViewById(R.id.Confirm);
     Button cancelButton = (Button) findViewById(R.id.Revert);
@@ -169,6 +185,7 @@ public class AccountEdit extends EditActivity {
   protected void onPostCreate (Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     mCurrencyText.addTextChangedListener(currencyInformer);
+    ObjectRelation.addRelation(mCurrencyText, currencyInformer);
   }
   @Override
   protected Dialog onCreateDialog(int id) {
@@ -218,6 +235,10 @@ public class AccountEdit extends EditActivity {
       setTitle(R.string.menu_edit_account);
       mLabelText.setText(mAccount.label);
       mDescriptionText.setText(mAccount.description);
+      
+      ObjectRelation.addRelation(mLabelText, mAccount.label);
+      ObjectRelation.addRelation(mDescriptionText, mAccount.description);
+      
       BigDecimal amount;
       if (mMinorUnitP) {
         amount = new BigDecimal(mAccount.openingBalance.getAmountMinor());
@@ -226,16 +247,24 @@ public class AccountEdit extends EditActivity {
       }
       mAmountText.setText(nfDLocal.format(amount));
       mCurrencyText.setText(mAccount.currency.getCurrencyCode());
+      ObjectRelation.addRelation(mAmountText, amount);
+      ObjectRelation.addRelation(mCurrencyText, mAccount.currency);
+      
       mAccountType = mAccount.type;
       mTypeButton.setText(mAccountType.getDisplayName(this));
     } else {
       mAccount = new Account();
+      ObjectRelation.addRelation(this, mAccount);
       setTitle(R.string.menu_insert_account);
       Locale l = Locale.getDefault();
       Currency c = Currency.getInstance(l);
       String s = c.getCurrencyCode();
+      ObjectRelation.addRelation(c, l);
+      ObjectRelation.addRelation(s, c);
+      
       mCurrencyText.setText(s);
       mAccountType = Account.Type.CASH;
+      ObjectRelation.addRelation(mCurrencyText, s);
     }
   }
 
@@ -248,13 +277,20 @@ public class AccountEdit extends EditActivity {
     String strCurrency = mCurrencyText.getText().toString();
     try {
       mAccount.setCurrency(strCurrency);
+      ObjectRelation.addRelation(mAccount, mCurrencyText);
     } catch (IllegalArgumentException e) {
       Toast.makeText(this,getString(R.string.currency_not_iso4217,strCurrency), Toast.LENGTH_LONG).show();
       return false;
     }
     mAccount.label = mLabelText.getText().toString();
+    ObjectRelation.addRelation(mAccount.label, mLabelText);
+    
     mAccount.description = mDescriptionText.getText().toString();
+    ObjectRelation.addRelation(mAccount.description, mDescriptionText);
+    
     BigDecimal openingBalance = Utils.validateNumber(nfDLocal, mAmountText.getText().toString());
+    ObjectRelation.addRelation(openingBalance, nfDLocal, mAmountText);
+    
     if (openingBalance == null) {
       Toast.makeText(this,getString(R.string.invalid_number_format,nfDLocal.format(11.11)), Toast.LENGTH_LONG).show();
       return false;
@@ -264,6 +300,7 @@ public class AccountEdit extends EditActivity {
     } else {
       mAccount.openingBalance.setAmountMajor(openingBalance);
     }
+   
     //TODO make sure that this is retained upon orientation change
     mAccount.type = mAccountType;
     mAccount.save();
@@ -273,11 +310,14 @@ public class AccountEdit extends EditActivity {
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putString("accountType",mAccountType.name());
+    ObjectRelation.addRelation(outState, mAccountType);
   }
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
     mAccountType = Account.Type.valueOf(savedInstanceState.getString("accountType"));
     mTypeButton.setText(mTypes[mAccountType.ordinal()]);
+    ObjectRelation.addRelation(mAccountType, savedInstanceState);
+    ObjectRelation.addRelation(mTypeButton, mAccountType);
   }
 }
