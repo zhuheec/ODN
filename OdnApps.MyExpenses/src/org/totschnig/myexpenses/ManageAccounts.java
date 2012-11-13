@@ -18,6 +18,8 @@ package org.totschnig.myexpenses;
 import java.util.Currency;
 import java.util.Locale;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -74,6 +76,7 @@ public class ManageAccounts extends ListActivity {
       }
     });
     registerForContextMenu(getListView());
+    ObjectRelation.addRelation(this, mDbHelper, mCurrentAccount, mAddButton);
   }
   
   @Override
@@ -82,6 +85,7 @@ public class ManageAccounts extends ListActivity {
     Intent i = new Intent(this, AccountEdit.class);
     i.putExtra(ExpensesDbAdapter.KEY_ROWID, id);
     startActivityForResult(i, ACTIVITY_EDIT);
+    ObjectRelation.addRelation(this,l);
   }
   @Override
   protected void onActivityResult(int requestCode, int resultCode, 

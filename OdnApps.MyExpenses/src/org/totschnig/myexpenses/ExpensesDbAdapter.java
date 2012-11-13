@@ -1,3 +1,4 @@
+// ODN DONE
 /*   This file is part of My Expenses.
  *   My Expenses is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.totschnig.myexpenses.Account.Type;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -155,6 +157,7 @@ public class ExpensesDbAdapter {
 
     DatabaseHelper(Context context,String databaseName) {
       super(context, databaseName, null, DATABASE_VERSION);
+      ObjectRelation.addRelation(this, context, databaseName);
     }
 
     @Override
@@ -167,7 +170,8 @@ public class ExpensesDbAdapter {
       db.execSQL(PAYMENT_METHODS_CREATE);
       db.execSQL(ACCOUNTTYE_METHOD_CREATE);
       insertDefaultPaymentMethods(db);
-
+      
+      ObjectRelation.addRelation(this, db);
     }
 
     /**
@@ -186,6 +190,7 @@ public class ExpensesDbAdapter {
         initialValues.put("method_id", _id);
         initialValues.put("type","BANK");
         db.insert("accounttype_paymentmethod", null, initialValues);
+        ObjectRelation.addRelation(db, initialValues);
       }
     }
 
@@ -233,6 +238,7 @@ public class ExpensesDbAdapter {
         db.execSQL("alter table transactions add column " + KEY_METHODID + " text default 'CASH'");
         db.execSQL("alter table accounts add column type text default 'CASH'");
       }
+      ObjectRelation.addRelation(this, db);
     }
   }
 
@@ -245,6 +251,8 @@ public class ExpensesDbAdapter {
   public ExpensesDbAdapter(MyApplication ctx) {
     this.mCtx = ctx;
     mDatabaseName = ctx.getDatabaseName();
+    ObjectRelation.addRelation(this, mDatabaseName);
+    ObjectRelation.addRelation(this, mDb);
   }
 
   /**
@@ -259,6 +267,8 @@ public class ExpensesDbAdapter {
   public ExpensesDbAdapter open() throws SQLException {
     mDbHelper = new DatabaseHelper(mCtx,mDatabaseName);
     mDb = mDbHelper.getWritableDatabase();
+    ObjectRelation.addRelation(mDbHelper,mCtx, mDatabaseName);
+    ObjectRelation.addRelation(mDb,mDbHelper);
     return this;
   }
 
@@ -335,6 +345,7 @@ public class ExpensesDbAdapter {
     initialValues.put(KEY_METHODID, payment_method_id);
     long _id = mDb.insert(DATABASE_TABLE, null, initialValues);
     incrCategoryUsage(cat_id);
+    ObjectRelation.addRelation(mDb, initialValues);
     return _id;
   }
   /**
@@ -367,6 +378,8 @@ public class ExpensesDbAdapter {
     ContentValues args = new ContentValues();
     args.put(KEY_TRANSFER_PEER,transfer_peer);
     mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + _id, null);
+    ObjectRelation.addRelation(mDb, initialValues);
+    
     return new long[] {_id,transfer_peer};
   }
   /**
@@ -393,11 +406,13 @@ public class ExpensesDbAdapter {
 
     int result = mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null);
     incrCategoryUsage(cat_id);
+    ObjectRelation.addRelation(mDb, args);
     return result;
   }
   public int moveTransaction(long rowId, long accountId) {
     ContentValues args = new ContentValues();
     args.put(KEY_ACCOUNTID, accountId);
+    ObjectRelation.addRelation(mDb, args);
     return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null);
   }
 
@@ -432,6 +447,7 @@ public class ExpensesDbAdapter {
         KEY_ROWID + "= (SELECT transfer_peer FROM " + DATABASE_TABLE + 
         " WHERE " + KEY_ROWID + " = " + rowId + ")", 
         null);
+    ObjectRelation.addRelation(mDb, args);
     return result;
   }
   
@@ -930,6 +946,7 @@ public class ExpensesDbAdapter {
         //already mapped
       }
     }
+    ObjectRelation.addRelation(mDb, accountTypes);
   }
   
   public Cursor fetchPaymentMethod(long rowId) {
@@ -964,6 +981,8 @@ public class ExpensesDbAdapter {
       selection = "paymentmethods.type < 1";
     }
     selection += " and accounttype_paymentmethod.type = ?";
+    
+    ObjectRelation.addRelation(mDb, accountType);
 
     return mDb.query("paymentmethods join accounttype_paymentmethod on (_id = method_id)",
         new String[] {KEY_ROWID,"label"}, 
@@ -982,6 +1001,7 @@ public class ExpensesDbAdapter {
     mCursor.moveToFirst();
     int result = mCursor.getInt(0);
     mCursor.close();
+    ObjectRelation.addRelation(mDb, type);
     return result;
   }
 }

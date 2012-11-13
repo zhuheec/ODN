@@ -18,6 +18,8 @@ package org.totschnig.myexpenses;
 import java.io.File;
 import java.util.Map;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;

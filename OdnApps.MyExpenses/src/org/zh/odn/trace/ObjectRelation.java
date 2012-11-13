@@ -9,16 +9,16 @@
 package org.zh.odn.trace;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import android.os.Environment;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -27,15 +27,27 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
+import de.mindpipe.android.logging.log4j.LogConfigurator;
+
 public class ObjectRelation {
 
 	public static final boolean DEBUG = true;
 	public static final String RELATION_SYNTAX = "-->";
 
 	private static ObjectRelation instance = null;
-	private static Logger log = Logger.getLogger(ObjectRelation.class);
+	private static Logger log;
 	static{
-		log.setLevel(Level.DEBUG);
+		instance = new ObjectRelation(); 
+	
+		 final LogConfigurator logConfigurator = new LogConfigurator();
+
+	        logConfigurator.setFileName(Environment.getExternalStorageDirectory() + "/odn.log");
+	        logConfigurator.setRootLevel(Level.DEBUG);
+	        // Set log level of a specific logger
+	        logConfigurator.setLevel("org.apache", Level.DEBUG);
+	        logConfigurator.configure(); 
+	        
+	        log = Logger.getLogger(ObjectRelation.class);
 	}
 
 	public static ObjectRelation getInstance() {
@@ -83,10 +95,14 @@ public class ObjectRelation {
 			FileOutputStream fos;
 			try {
 				SimpleDateFormat fm = new SimpleDateFormat("yyyyMMddHHmmss");
-				File file = new File("odn_" + fm.format(new Date()) + ".graphml");
+				File file = new File(Environment.getExternalStorageDirectory() + "/odn_" + fm.format(new Date()) + ".graph");
 				fos = new FileOutputStream(file);
 				log.debug("Starting to output ODN graph to file [" + file.getAbsolutePath() + "]...");
-				GraphMLWriter.outputGraph(or.objectGraph, fos);
+				//GraphMLWriter.outputGraph(or.objectGraph, fos);
+				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+				oos.writeObject(or.objectGraph);
+				oos.flush();
+				oos.close();
 				log.debug("ODN graph output complete.");
 			} catch (IOException e) {
 				log.error(e.getMessage());
@@ -94,29 +110,9 @@ public class ObjectRelation {
 		}
 	}
 	
-	public static void graphFileToGraphml(String path) {
-		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path));
-			TinkerGraph graph = (TinkerGraph) ois.readObject();
-			ois.close();
-			SimpleDateFormat fm = new SimpleDateFormat("yyyyMMddHHmmss");
-			File file = new File("odn_" + fm.format(new Date()) + ".graphml");
-			FileOutputStream fos = new FileOutputStream(file);
-			log.debug("Starting to output ODN graph to file [" + file.getAbsolutePath() + "]...");
-			GraphMLWriter.outputGraph(graph, fos);
-			log.debug("ODN graph output complete.");
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
-	}
-	
 	public void printAll() {
 		for(Edge e : objectGraph.getEdges()) {
 			log.debug(e.getVertex(Direction.OUT) + RELATION_SYNTAX + e.getVertex(Direction.IN));
 		}
-	}
-	
-	public static void main(String[] args) {
-		graphFileToGraphml("odn_20121113121622.graph");
 	}
 }

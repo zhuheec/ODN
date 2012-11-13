@@ -1,3 +1,4 @@
+// ODN DONE 
 /*   This file is part of My Expenses.
  *   My Expenses is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +18,8 @@ package org.totschnig.myexpenses;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -98,16 +101,21 @@ public class ExpenseEdit extends EditActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mDbHelper = MyApplication.db();
+    ObjectRelation.addRelation(this, mDbHelper);
 
     Bundle extras = getIntent().getExtras();
     mRowId = extras.getLong(ExpensesDbAdapter.KEY_ROWID,0);
+    ObjectRelation.addRelation(mRowId, extras);
+    ObjectRelation.addRelation(this, mRowId);
     mAccountId = extras.getLong(ExpensesDbAdapter.KEY_ACCOUNTID);
+    ObjectRelation.addRelation(this, mAccountId);
     mOperationType = extras.getBoolean("operationType");
-    
+    ObjectRelation.addRelation(this, mOperationType);
     setContentView(R.layout.one_expense);
     configAmountInput();
 
     mDateButton = (Button) findViewById(R.id.Date);
+    ObjectRelation.addRelation(this, mDateButton);
     mDateButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
         showDialog(DATE_DIALOG_ID);
@@ -115,6 +123,7 @@ public class ExpenseEdit extends EditActivity {
     });
 
     mTimeButton = (Button) findViewById(R.id.Time);
+    ObjectRelation.addRelation(this, mTimeButton);
     mTimeButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
         showDialog(TIME_DIALOG_ID);
@@ -122,24 +131,29 @@ public class ExpenseEdit extends EditActivity {
     });
 
     mCommentText = (EditText) findViewById(R.id.Comment);
-
+    ObjectRelation.addRelation(this, mCommentText);
+    
     Button confirmButton = (Button) findViewById(R.id.Confirm);
     Button cancelButton = (Button) findViewById(R.id.Revert);
     
     
     if (mOperationType == MyExpenses.TYPE_TRANSACTION) {
       mPayeeLabel = (TextView) findViewById(R.id.PayeeLabel);
+      ObjectRelation.addRelation(this, mPayeeLabel);
       Cursor allPayees = mDbHelper.fetchPayeeAll();
+      ObjectRelation.addRelation(allPayees, mDbHelper);
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
           android.R.layout.simple_dropdown_item_1line);
       allPayees.moveToFirst();
       while(!allPayees.isAfterLast()) {
            adapter.add(allPayees.getString(allPayees.getColumnIndex("name")));
            allPayees.moveToNext();
+           ObjectRelation.addRelation(adapter, allPayees);
       }
       allPayees.close();
       mPayeeText = (AutoCompleteTextView) findViewById(R.id.Payee);
       mPayeeText.setAdapter(adapter);
+      ObjectRelation.addRelation(mPayeeText, adapter);
     } else {
       findViewById(R.id.PayeeRow).setVisibility(View.GONE);
       findViewById(R.id.MethodRow).setVisibility(View.GONE);
@@ -161,6 +175,7 @@ public class ExpenseEdit extends EditActivity {
     });
         
     mTypeButton = (Button) findViewById(R.id.TaType);
+    ObjectRelation.addRelation(this, mTypeButton);
     mTypeButton.setOnClickListener(new View.OnClickListener() {
 
       public void onClick(View view) {
@@ -174,6 +189,7 @@ public class ExpenseEdit extends EditActivity {
       } 
     });
     mCategoryButton = (Button) findViewById(R.id.Category);
+    ObjectRelation.addRelation(this, mCategoryButton);
     if (mOperationType == MyExpenses.TYPE_TRANSFER) {
       //if there is a label for the category input (portrait), we adjust it,
       //otherwise directly the button (landscape)
@@ -184,6 +200,7 @@ public class ExpenseEdit extends EditActivity {
         mCategoryButton.setText(R.string.account);
     } else {
       mMethodButton = (Button) findViewById(R.id.Method);
+      ObjectRelation.addRelation(this, mMethodButton);
       mMethodButton.setOnClickListener(new View.OnClickListener() {
         public void onClick(View view) {
           showDialog(METHOD_DIALOG_ID);
@@ -231,17 +248,22 @@ public class ExpenseEdit extends EditActivity {
   protected Dialog onCreateDialog(int id) {
     switch (id) {
     case DATE_DIALOG_ID:
-      return new DatePickerDialog(this,
+    	ObjectRelation.addRelation(this, mDateSetListener);
+    	return new DatePickerDialog(this,
           mDateSetListener,
           mYear, mMonth, mDay);
     case TIME_DIALOG_ID:
+    	ObjectRelation.addRelation(this, mTimeSetListener);
       return new TimePickerDialog(this,
           mTimeSetListener,
           mHours, mMinutes, true);
     case ACCOUNT_DIALOG_ID:
       final Cursor otherAccounts = mDbHelper.fetchAccountOther(mTransaction.accountId,true);
+      ObjectRelation.addRelation(otherAccounts, mDbHelper, mTransaction);
       final String[] accountLabels = Utils.getStringArrayFromCursor(otherAccounts, "label");
+      ObjectRelation.addRelation(accountLabels, otherAccounts);
       final long[] accountIds = Utils.getLongArrayFromCursor(otherAccounts, ExpensesDbAdapter.KEY_ROWID);
+      ObjectRelation.addRelation(accountIds, otherAccounts);
       otherAccounts.close();
       return new  AlertDialog.Builder(this)
         .setTitle(R.string.dialog_title_select_account)
@@ -256,6 +278,7 @@ public class ExpenseEdit extends EditActivity {
     case METHOD_DIALOG_ID:
       Cursor paymentMethods;
       paymentMethods = mDbHelper.fetchPaymentMethodsFiltered(mType,mAccount.type);
+      ObjectRelation.addRelation(paymentMethods, mDbHelper, mType);
       final String[] methodLabels = new String[paymentMethods.getCount()];
       final long[] methodIds = new long[paymentMethods.getCount()];
       PaymentMethod pm;
@@ -311,12 +334,16 @@ public class ExpenseEdit extends EditActivity {
     //1. fetch the transaction or create a new instance
     if (mRowId != 0) {
       mTransaction = Transaction.getInstanceFromDb(mRowId);
+      ObjectRelation.addRelation(mTransaction, mRowId);
       mAccountId = mTransaction.accountId;
+      ObjectRelation.addRelation(mAccountId, mTransaction);
     } else {
       mTransaction = Transaction.getTypedNewInstance(mOperationType,mAccountId);
+      ObjectRelation.addRelation(mTransaction, mOperationType, mAccountId);
     }
     try {
       mAccount = Account.getInstanceFromDb(mAccountId);
+      ObjectRelation.addRelation(mAccount, mAccountId);
     } catch (DataObjectNotFoundException e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -324,6 +351,7 @@ public class ExpenseEdit extends EditActivity {
     //2. get info about other accounts if we are editing a transfer
     if (mOperationType == MyExpenses.TYPE_TRANSFER) {
       otherAccounts = mDbHelper.fetchAccountOther(mAccountId,true);
+      
       otherAccountsCount = otherAccounts.getCount();
     }
     //TableLayout mScreen = (TableLayout) findViewById(R.id.Table);
@@ -344,6 +372,7 @@ public class ExpenseEdit extends EditActivity {
       }
       
       mAmountText.setText(nfDLocal.format(amount));
+      
       //3b  fill comment
       mCommentText.setText(mTransaction.comment);
       //3c set title based on type
@@ -354,6 +383,7 @@ public class ExpenseEdit extends EditActivity {
         try {
           if (mMethodId != 0) {
             mMethodButton.setText(PaymentMethod.getInstanceFromDb(mMethodId).getDisplayLabel(this));
+            ObjectRelation.addRelation(mMethodButton, mAccountId);
           }
         } catch (DataObjectNotFoundException e) {
           //the methodId no longer exists in DB, we set it to 0
@@ -391,6 +421,7 @@ public class ExpenseEdit extends EditActivity {
         mCategoryButton.setOnClickListener(new View.OnClickListener() {
           public void onClick(View view) {
             showDialog(ACCOUNT_DIALOG_ID);
+            ObjectRelation.addRelation(this, view);
           }
         });
       }
@@ -401,6 +432,7 @@ public class ExpenseEdit extends EditActivity {
       mCategoryButton.setOnClickListener(new View.OnClickListener() {
         public void onClick(View view) {
             startSelectCategory();
+            ObjectRelation.addRelation(this, view);
         }
       });
       //5c we hide the method button if there are no valid methods, we check for both incomes and expenses
@@ -412,10 +444,12 @@ public class ExpenseEdit extends EditActivity {
     setDateTime(mTransaction.date);
     
     //add currency label to amount label
-    TextView amountLabel = (TextView) findViewById(R.id.AmountLabel);    
+    TextView amountLabel = (TextView) findViewById(R.id.AmountLabel);
+    ObjectRelation.addRelation(this, amountLabel);
     String currencySymbol;
     try {
       Account account = Account.getInstanceFromDb(mTransaction.accountId);
+      ObjectRelation.addRelation(account, mTransaction);
       currencySymbol = account.currency.getSymbol();
       if (mMinorUnitP) {
         switch (account.currency.getDefaultFractionDigits()) {
@@ -478,6 +512,7 @@ public class ExpenseEdit extends EditActivity {
   private boolean saveState() {
     String strAmount = mAmountText.getText().toString();
     BigDecimal amount = Utils.validateNumber(nfDLocal, strAmount);
+    ObjectRelation.addRelation(amount, mAmountText, nfDLocal);
     if (amount == null) {
       Toast.makeText(this,getString(R.string.invalid_number_format,nfDLocal.format(11.11)), Toast.LENGTH_LONG).show();
       return false;
@@ -487,6 +522,7 @@ public class ExpenseEdit extends EditActivity {
     }
     if (mMinorUnitP) {
       mTransaction.amount.setAmountMinor(amount.longValue());
+      ObjectRelation.addRelation(mTransaction, amount);
     } else {
       mTransaction.amount.setAmountMajor(amount);
     }

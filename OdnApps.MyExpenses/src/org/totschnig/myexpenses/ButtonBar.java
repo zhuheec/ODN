@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.example.qberticus.quickactions.BetterPopupWindow;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -36,9 +37,12 @@ public class ButtonBar extends LinearLayout  {
   public ButtonBar(Context context, AttributeSet attrs) {
     super(context,attrs);
     orientation = getResources().getConfiguration().orientation;
+    ObjectRelation.addRelation(this, context, orientation);
   }
   public MenuButton addButton(int text,int drawable,int id) {
-    LayoutInflater inflater = LayoutInflater.from(getContext());
+	  Context context = getContext();
+    LayoutInflater inflater = LayoutInflater.from(context);
+    ObjectRelation.addRelation(inflater, context);
     MenuButton b = (MenuButton) inflater.inflate(R.layout.button, this, false);
     b.setText(text);
     b.setId(id);
@@ -48,8 +52,10 @@ public class ButtonBar extends LinearLayout  {
       b.setCompoundDrawablesWithIntrinsicBounds(0, drawable,0, 0);
     }
     addView(b);
+    ObjectRelation.addRelation(this, b);
     b.setOnClickListener((MyExpenses) getContext());
     b.setOnLongClickListener((MyExpenses) getContext());
+    ObjectRelation.addRelation(b, context);
     return b;
   }
   public static class MenuButton extends Button {
@@ -60,6 +66,7 @@ public class ButtonBar extends LinearLayout  {
     public MenuButton(Context context, AttributeSet attrs) {
       super(context,attrs);
       mItems = new ArrayList<TextView>();
+      ObjectRelation.addRelation(this, context, attrs, mItems);
     }
     public TextView addItem(int text,int id) {
       return addItem(getContext().getString(text),id);
@@ -73,6 +80,7 @@ public class ButtonBar extends LinearLayout  {
       tv.setBackgroundResource(android.R.drawable.menuitem_background);
       tv.setOnClickListener(context);
       mItems.add(tv);
+      ObjectRelation.addRelation(mItems, tv);
       return tv;
     }
     

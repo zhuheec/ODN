@@ -11,7 +11,10 @@ public class OdnTracer {
 	
 	private static HashMap<Object, Throwable> traceList = new HashMap<Object, Throwable>();
 	
-	static { log.setLevel(Level.DEBUG); }
+	static { 
+		
+		log.setLevel(Level.DEBUG);
+	}
 	
 	public static void trace(Object obj) {
 		traceList.put(obj, new Throwable());

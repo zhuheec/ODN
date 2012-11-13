@@ -198,7 +198,7 @@ public class OdnGraph extends TinkerGraph {
 	private static void step1() {
 		for(int i = 1; i <= 10; i++) {
 			for(int j = 1; j <= 10; j++) {
-				OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", i/10.0, j/10.0);
+				OdnGraph graph = new OdnGraph("odn.graphml", "org.totschnig.myexpenses", i/10.0, j/10.0);
 				graph.calculateAllVulnerabilities();
 				graph.outputVulnerabilities("results/vul_" + i + "_" + j + ".txt");
 			}
@@ -248,7 +248,7 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		OdnGraph graph = new OdnGraph("odn.graphml", "com.even.trendcraw", 0.1, 0.1);
+		OdnGraph graph = new OdnGraph("odn.graphml", "org.totschnig.myexpenses", 0.1, 0.1);
 		int vcount = 0;
 		for(Vertex v : graph.getVertices()) {
 			vcount++;
@@ -258,7 +258,7 @@ public class OdnGraph extends TinkerGraph {
 		//step1();
 		//step2();
 		
-		//graph.saveToGraphml("odn_inner.graphml");
+		graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
 		//Vertex end = graph.getVertex("com.even.trendcraw.MySqlConnection@771153740");
 		//VertexPair vp = new VertexPair(graph, start, end);

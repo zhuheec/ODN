@@ -1,3 +1,4 @@
+// ODN DONE
 /*   This file is part of My Expenses.
  *   My Expenses is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +17,8 @@
 package org.totschnig.myexpenses;
 
 import java.io.File;
+
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,6 +47,7 @@ public class Backup extends Activity {
     case BACKUP_DIALOG_ID:
       ExpensesDbAdapter mDbHelper = MyApplication.db();
       File backupDb = mDbHelper.getBackupFile();
+      ObjectRelation.addRelation(backupDb, mDbHelper);
       int message = backupDb.exists() ? R.string.warning_backup_exists : R.string.warning_backup;
       return new AlertDialog.Builder(this)
       .setMessage(message)
@@ -68,6 +72,7 @@ public class Backup extends Activity {
           finish();
         }
       }).create();
+      
     }
     return null;
   }

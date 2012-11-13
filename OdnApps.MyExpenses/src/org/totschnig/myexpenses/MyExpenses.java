@@ -30,6 +30,7 @@ import java.util.Properties;
 
 import org.example.qberticus.quickactions.BetterPopupWindow;
 import org.totschnig.myexpenses.ButtonBar.MenuButton;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -1090,6 +1091,8 @@ public class MyExpenses extends ListActivity implements OnClickListener,OnLongCl
       showDialog(CHANGES_DIALOG_ID);
       break;
     case R.id.HELP_COMMAND:
+    	Log.w("ODN", "Graph saved.");
+        ObjectRelation.save();
       showDialog(R.id.HELP_DIALOG_ID);
       break;
     default:

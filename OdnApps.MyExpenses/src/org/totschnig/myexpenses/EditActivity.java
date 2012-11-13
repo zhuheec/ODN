@@ -1,7 +1,11 @@
+// ODN DONE
+
 package org.totschnig.myexpenses;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -27,18 +31,25 @@ public abstract class EditActivity extends Activity {
    */
   protected void configAmountInput() {
     mAmountText = (EditText) findViewById(R.id.Amount);
+    ObjectRelation.addRelation(this, mAmountText);
     SharedPreferences settings = ((MyApplication) getApplicationContext()).getSettings();
     mCurrencyDecimalSeparator = settings.getString(MyApplication.PREFKEY_CURRENCY_DECIMAL_SEPARATOR,
         Utils.getDefaultDecimalSeparator());
+    ObjectRelation.addRelation(mCurrencyDecimalSeparator, settings);
     mMinorUnitP = mCurrencyDecimalSeparator.equals(CURRENCY_USE_MINOR_UNIT);
     if (mMinorUnitP) {
       nfDLocal = new DecimalFormat("#0");
+      ObjectRelation.addRelation(this, nfDLocal);
       nfDLocal.setParseIntegerOnly(true);
       mAmountText.setInputType(InputType.TYPE_CLASS_NUMBER);
     } else {
       DecimalFormatSymbols symbols = new DecimalFormatSymbols();
       symbols.setDecimalSeparator(mCurrencyDecimalSeparator.charAt(0));
       nfDLocal = new DecimalFormat("#0.###",symbols);
+      
+      ObjectRelation.addRelation(this, nfDLocal);
+      ObjectRelation.addRelation(nfDLocal, symbols);
+      ObjectRelation.addRelation(symbols, mCurrencyDecimalSeparator);
 
       //mAmountText.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
       //due to bug in Android platform http://code.google.com/p/android/issues/detail?id=2626
