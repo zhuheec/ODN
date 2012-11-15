@@ -50,6 +50,7 @@ import org.ametro.ui.MapDetailsActivity;
 import org.ametro.ui.TaskFailedList;
 import org.ametro.ui.TaskQueuedList;
 import org.ametro.util.FileUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -128,6 +129,8 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 		notification.when = System.currentTimeMillis();
 		notification.setLatestEventInfo(mContext, title, message, contentIntent);
 		mNotificationManager.notify(TASK_PROGRESS_ID, notification);
+		ObjectRelation.addRelation(notification, title, message);
+		ObjectRelation.addRelation(this, task);
 	}	
 	
 	private void displayTaskFailedNotification()
@@ -160,6 +163,8 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 		mFailedTaskNotificationText = res.getString(R.string.msg_task_error_notify_text);
 		
 		mNotificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		ObjectRelation.addRelation(mContext, context);
 	}
 	
 	public void shutdown(){
@@ -168,6 +173,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 	
 	public void addCatalogStorageListener(ICatalogStorageListener listener){
 		mListeners.add(listener);
+		ObjectRelation.addRelation(mListeners, listener);
 	}
 	
 	public void removeCatalogStorageListener(ICatalogStorageListener listener){
@@ -177,12 +183,14 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 	/*package*/ void fireCatalogChanged(int catalogId, Catalog catalog){
 		for(ICatalogStorageListener listener : mListeners){
 			listener.onCatalogLoaded(catalogId, catalog);
+			ObjectRelation.addRelation(listener, catalog);
 		}
 	}
 
 	/*package*/ void fireCatalogOperationFailed(int catalogId, String message){
 		for(ICatalogStorageListener listener : mListeners){
 			listener.onCatalogFailed(catalogId, message);
+			ObjectRelation.addRelation(listener, message);
 		}
 	}
 
@@ -195,6 +203,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 	/*package*/ void fireCatalogMapChanged(String systemName){
 		for(ICatalogStorageListener listener : mListeners){
 			listener.onCatalogMapChanged(systemName);
+			ObjectRelation.addRelation(listener, systemName);
 		}
 	}
 	
@@ -213,6 +222,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 	/*package*/ void fireCatalogMapDownloadFailed(String systemName, Throwable e) {
 		for(ICatalogStorageListener listener : mListeners){
 			listener.onCatalogMapDownloadFailed(systemName, e);
+			ObjectRelation.addRelation(listener, systemName, e);
 		}
 	}
 	
@@ -259,6 +269,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 		synchronized (mTaskQueue) {
 			if(mCatalogs[LOCAL]!=null && !mCatalogs[LOCAL].isCorrupted()){
 				CatalogMap map = mCatalogs[LOCAL].getMap(systemName);
+				ObjectRelation.addRelation(map, systemName);
 				if(map!=null ){
 					try {
 						Log.w(Constants.LOG_TAG_MAIN, "Delete local map " + map.getAbsoluteUrl());
@@ -315,6 +326,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 				mSyncRunTask.abort();
 				fireCatalogMapChanged(systemName);
 			}
+			ObjectRelation.addRelation(task, systemName);
 		}
 	}
 
@@ -323,6 +335,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 			requestTask(new DownloadMapTask(systemName));
 			fireCatalogMapChanged(systemName);
 		}
+		ObjectRelation.addRelation(mTaskQueue, systemName);
 	}
 
 	public void requestDownload(List<String> systemNames) {
@@ -332,6 +345,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 				fireCatalogMapChanged(systemName);
 			}
 		}
+		ObjectRelation.addRelation(mTaskQueue, systemNames);
 	}
 	
 	
@@ -342,6 +356,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 				mTaskQueue.remove(task);
 				fireCatalogMapChanged(systemName);
 			}
+			ObjectRelation.addRelation(task, systemName);
 		}
 	}
 
@@ -446,6 +461,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 	}
 
 	public boolean isTaskCanceled(BaseTask task){
+		ObjectRelation.addRelation(this, task);
 		if(mIsShutdown){
 			return true;
 		}
@@ -477,6 +493,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 					mapName + ", " +  progress + "/" + total,
 					android.R.drawable.stat_sys_download);
 		}
+		ObjectRelation.addRelation(this, task, message);
 	}
 	
 	public void onTaskCanceled(BaseTask task){
@@ -540,6 +557,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 		if(mAsyncRunQueue.contains(task)){
 			mAsyncRunQueue.remove(task);
 		}
+		ObjectRelation.addRelation(this, task, reason);
 	}
 	
 	public void onTaskBegin(BaseTask task){
@@ -607,6 +625,7 @@ public class CatalogStorage implements Runnable, ICatalogStorageTaskListener { /
 	public boolean requestTask(BaseTask task) {
 		synchronized (mTaskQueue) {
 			final Object taskId = task.getTaskId();
+			ObjectRelation.addRelation(taskId, task);
 			if(taskId!=null){
 				final Class<? extends BaseTask> newTaskClass = task.getClass();
 				for(BaseTask queued : mTaskQueue){

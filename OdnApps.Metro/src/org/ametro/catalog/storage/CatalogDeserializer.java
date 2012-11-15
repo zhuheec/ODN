@@ -32,6 +32,7 @@ import org.ametro.util.StringUtil;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+import org.zh.odn.trace.ObjectRelation;
 
 public class CatalogDeserializer {
 
@@ -161,6 +162,7 @@ public class CatalogDeserializer {
 		 eventType = xpp.next();
 		}
 		catalog.setMaps(maps);
+		ObjectRelation.addRelation(xpp, stream);
 		return catalog;
 	}
 	

@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.ametro.catalog.Catalog;
 import org.ametro.catalog.CatalogMap;
 import org.xmlpull.v1.XmlSerializer;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.util.Xml;
 
@@ -100,7 +101,7 @@ public class CatalogSerializer {
 		serializer.endTag("", TAG_CATALOG);
 		serializer.endDocument();
 		stream.flush();
-
+		ObjectRelation.addRelation(serializer, stream, catalog);
 	}
 
 }

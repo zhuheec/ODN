@@ -22,6 +22,7 @@ package org.ametro.catalog.storage;
 
 import org.ametro.catalog.CatalogMap;
 import org.ametro.catalog.CatalogMapState;
+import org.zh.odn.trace.ObjectRelation;
 
 public class CatalogStorageStateProvider {
 
@@ -29,11 +30,12 @@ public class CatalogStorageStateProvider {
 	
 	public CatalogStorageStateProvider(CatalogStorage storage){
 		mStorage = storage;
+		ObjectRelation.addRelation(mStorage, storage);
 	}
 
 	public int getOnlineCatalogState(CatalogMap local, CatalogMap remote) {
 		String systemName = local!=null ? local.getSystemName() : remote.getSystemName();
-		
+		ObjectRelation.addRelation(systemName, local, remote);
 		if(mStorage.isDownloadingTask(systemName)){
 			return CatalogMapState.DOWNLOADING;
 		}
