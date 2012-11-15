@@ -195,7 +195,7 @@ public class OdnGraph extends TinkerGraph {
 		
 	}
 	
-	private static void step1() {
+	private static void outputVulByParams() {
 		for(int i = 1; i <= 10; i++) {
 			for(int j = 1; j <= 10; j++) {
 				OdnGraph graph = new OdnGraph("odn.graphml", "org.totschnig.myexpenses", i/10.0, j/10.0);
@@ -205,7 +205,7 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
-	private static void step2() {
+	private static void outputVulByClass() {
 		try {
 			Hashtable<String, BufferedWriter> objName = new Hashtable<String, BufferedWriter>();
 			for(int i = 1; i <= 10; i++) {
@@ -239,10 +239,46 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
-	public static int getNeighborsCount(Vertex v) {
+	public int getNeighborsCount(String className) {
 		int count = 0;
-		for(Vertex nbr : v.getVertices(Direction.BOTH)) {
-			count++;
+		Vertex vertex = null;
+		for(Vertex v : this.getVertices()) {
+			if(v.getId().toString().startsWith(className)) {
+				vertex = v;
+				break;
+			}
+		}
+		if(vertex != null) {
+			for(Vertex nbr : vertex.getVertices(Direction.BOTH)) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public int getTwoHopNeighborsCount(String className) {
+		int count = 0;
+		HashSet<Vertex> visitedVertices = new HashSet<Vertex>();
+		Vertex vertex = null;
+		for(Vertex v : this.getVertices()) {
+			if(v.getId().toString().startsWith(className)) {
+				vertex = v;
+				break;
+			}
+		}
+		if(vertex != null) {
+			for(Vertex nbr : vertex.getVertices(Direction.BOTH)) {
+				if(!visitedVertices.contains(nbr)) {
+					visitedVertices.add(nbr);
+					count++;
+					for(Vertex nbr2 : nbr.getVertices(Direction.BOTH)) {
+						if(!visitedVertices.contains(nbr2)) {
+							visitedVertices.add(nbr2);
+							count++;
+						}
+					}
+				}
+			}
 		}
 		return count;
 	}
@@ -252,11 +288,11 @@ public class OdnGraph extends TinkerGraph {
 		int vcount = 0;
 		for(Vertex v : graph.getVertices()) {
 			vcount++;
-			log.debug("Object [" + v.getId() + "] has [" + getNeighborsCount(v) + "] neighbors.");
+			log.debug("Object [" + v.getId() + "] has [" + graph.getNeighborsCount(v.getId().toString()) + "] neighbors.");
 		}
 		log.debug("total vertices: [" + vcount + "].");
-		//step1();
-		//step2();
+		//outputVulByParams();
+		//outputVulByClass();
 		
 		graph.saveToGraphml("odn_inner.graphml");
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
