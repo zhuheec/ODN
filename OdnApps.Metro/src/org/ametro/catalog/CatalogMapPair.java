@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import org.zh.odn.trace.ObjectRelation;
+
 public class CatalogMapPair {
 
 	public static class CatalogMapPairCityComparator implements Comparator<CatalogMapPair>
@@ -32,9 +34,11 @@ public class CatalogMapPair {
 		
 		public CatalogMapPairCityComparator(String code){
 			mCode = code;
+			ObjectRelation.addRelation(mCode, code);
 		}
 
 		public int compare(CatalogMapPair left, CatalogMapPair right) {
+			ObjectRelation.addRelation(this, left, right);
 			return left.getCity(mCode).compareTo(right.getCity(mCode));
 		}
 		
@@ -46,6 +50,7 @@ public class CatalogMapPair {
 		
 		public CatalogMapPairCountryComparator(String code){
 			mCode = code;
+			ObjectRelation.addRelation(mCode, code);
 		}
 
 		public int compare(CatalogMapPair left, CatalogMapPair right) {
@@ -53,6 +58,7 @@ public class CatalogMapPair {
 			if(res == 0){
 				return left.getCity(mCode).compareTo(right.getCity(mCode));
 			}
+			ObjectRelation.addRelation(res, left, right);
 			return res;
 		}
 		
@@ -83,6 +89,7 @@ public class CatalogMapPair {
 		this.mLocal = mLocal;
 		this.mRemote = mRemote;
 		this.mPreffered = preffered;
+		ObjectRelation.addRelation(this, mLocal, mRemote);
 	}
 	
 	public boolean isEquals(){
@@ -94,6 +101,7 @@ public class CatalogMapPair {
 	}
 	
 	public String getCity(String code) {
+		ObjectRelation.addRelation(this, code);
 		return preffered().getCity(code);
 	}
 	
@@ -167,6 +175,8 @@ public class CatalogMapPair {
 			final CatalogMap localMap = localCatalog!=null ? localCatalog.getMap(systemName) : null;
 			final CatalogMap remoteMap = remoteCatalog!=null ? remoteCatalog.getMap(systemName) : null;
 			diff.add(new CatalogMapPair(localMap, remoteMap, preffered));
+			ObjectRelation.addRelation(localMap, localCatalog);
+			ObjectRelation.addRelation(remoteMap, remoteCatalog);
 		}
 		return diff;
 	}
@@ -177,6 +187,8 @@ public class CatalogMapPair {
 		for(CatalogMap remote : importCatalog.getMaps()){
 			final CatalogMap local = localCatalog==null ? null : localCatalog.getMap(remote.getSystemName());
 			diff.add(new CatalogMapPair(local, remote, CatalogMapPair.PREFFERED_REMOTE));
+			ObjectRelation.addRelation(remote, importCatalog);
+			ObjectRelation.addRelation(local, localCatalog);
 		}
 		return diff;
 	}
@@ -191,6 +203,8 @@ public class CatalogMapPair {
 	}
 
 	public static ArrayList<CatalogMapPair> diff(Catalog local, Catalog remote, int mode) {
+		ObjectRelation.addRelation(null, local);
+		ObjectRelation.addRelation(null, remote);	
 		switch(mode){
 		case DIFF_MODE_LOCAL: return diffLocal(local, remote);
 		case DIFF_MODE_REMOTE: return diffRemote(local, remote);

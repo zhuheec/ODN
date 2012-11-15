@@ -21,6 +21,8 @@
 
 package org.ametro.catalog;
 
+import org.zh.odn.trace.ObjectRelation;
+
 public class CatalogMapPairEx extends CatalogMapPair {
 
 	private boolean mIsVisible;
@@ -32,6 +34,7 @@ public class CatalogMapPairEx extends CatalogMapPair {
 		this.mIsCheckable = checkable;
 		this.mIsChecked = checked;
 		this.mIsVisible = visible;
+		ObjectRelation.addRelation(this, mLocal, mRemote);
 	}
 
 	public CatalogMapPairEx(CatalogMapPair src, boolean checkable, boolean checked, boolean visible) {
@@ -39,6 +42,7 @@ public class CatalogMapPairEx extends CatalogMapPair {
 		this.mIsCheckable = checkable;
 		this.mIsChecked = checked;
 		this.mIsVisible = visible;
+		ObjectRelation.addRelation(this, src);
 	}
 
 	public boolean isVisible() {

@@ -37,6 +37,7 @@ import org.ametro.directory.CountryDirectory;
 import org.ametro.model.Model;
 import org.ametro.model.TransportType;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 public class Catalog {
 
@@ -71,10 +72,12 @@ public class Catalog {
 
 	public void setBaseUrl(String baseUrl) {
 		mBaseUrl = baseUrl;
+		ObjectRelation.addRelation(mBaseUrl, baseUrl);
 	}
 	
 	public void setMaps(ArrayList<CatalogMap> maps){
 		mMaps = maps;
+		ObjectRelation.addRelation(mMaps, maps);
 	}
 	
 	public ArrayList<CatalogMap> getMaps() {
@@ -86,6 +89,8 @@ public class Catalog {
 		mBaseUrl = baseUrl;
 		mMaps = maps;
 		mIsCorrupted = false;
+		ObjectRelation.addRelation(mBaseUrl, baseUrl);
+		ObjectRelation.addRelation(mMaps, maps);
 	}
 	
 	public String toString() {
@@ -105,15 +110,18 @@ public class Catalog {
 			}
 			mMapIndex = index;
 		}
+		ObjectRelation.addRelation(this, systemName);
 		return mMapIndex.get(systemName);
 	}
 
 	public static boolean equals(Catalog left, Catalog right) {
+		ObjectRelation.addRelation(null, left, right);
 		return left!=null && right!=null && left.equals(right);
 	}
 	
 	public boolean equals(Object o) {
 		Catalog obj = (Catalog)o;
+		ObjectRelation.addRelation(obj, o);
 		return mTimestamp == obj.mTimestamp && mBaseUrl.equals(obj.mBaseUrl) && mMaps.size() == obj.mMaps.size();
 	}
 
@@ -121,6 +129,7 @@ public class Catalog {
 		mMapIndex.remove(map.getSystemName());
 		mMaps.remove(map);
 		mTimestamp = System.currentTimeMillis();
+		ObjectRelation.addRelation(mMapIndex, map);
 		return this;
 	}
 
@@ -134,6 +143,7 @@ public class Catalog {
 		mMapIndex.put(systemName, map);
 		mMaps.add(map);
 		mTimestamp = System.currentTimeMillis();
+		ObjectRelation.addRelation(systemName, map);
 	}
 
 	public static CatalogMap makeBadCatalogMap(Catalog catalog, File file, final String fileName) {
@@ -189,6 +199,7 @@ public class Catalog {
 				 changeLog,
 				 true
 				 );
+		ObjectRelation.addRelation(map, catalog, file, fileName);
 		return map;
 	}
 	
@@ -243,6 +254,7 @@ public class Catalog {
 				 changeLog,
 				 false
 				 );
+		ObjectRelation.addRelation(map, catalog, file, fileName, model);
 		return map;
 	}
 	
@@ -254,6 +266,7 @@ public class Catalog {
 		String description;
 		
 		public int compareTo(ModelDescription another) {
+			ObjectRelation.addRelation(locale, another);
 			return locale.compareTo(another.locale);
 		}
 
@@ -263,6 +276,7 @@ public class Catalog {
 			this.city = city;
 			this.country = country;
 			this.description = description;
+			ObjectRelation.addRelation(this, locale, city, country, description);
 		}
 	}
 	
@@ -274,6 +288,7 @@ public class Catalog {
 		try{
 			strm = new BufferedOutputStream(new FileOutputStream(storage));
 			CatalogSerializer.serializeCatalog(catalog, strm);
+			ObjectRelation.addRelation(null, catalog, storage);
 		}finally{
 			if(strm!=null){
 				try { strm.close(); }catch(IOException ex){}
@@ -283,6 +298,7 @@ public class Catalog {
 
 	public void save(File storage) throws IOException {
 		Catalog.save(this, storage);
+		ObjectRelation.addRelation(this, storage);
 	}
 
 	public int getSize() {

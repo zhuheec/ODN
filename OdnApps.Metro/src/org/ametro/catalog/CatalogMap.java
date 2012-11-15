@@ -23,6 +23,7 @@ package org.ametro.catalog;
 import java.util.HashMap;
 
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 public class CatalogMap {
 
@@ -72,6 +73,7 @@ public class CatalogMap {
 		this.mDescription = description;
 		this.mCorrupted = corrupted;
 		this.mChangeLog = changeLog;
+		ObjectRelation.addRelation(this, owner, systemName, url, minVersion);
 	}
 
 	public String getSystemName() {
@@ -111,18 +113,22 @@ public class CatalogMap {
 	}
 	
 	public String getCity(String code) {
+		ObjectRelation.addRelation(mCity, code);
 		return mCity[getLocale(code)];
 	}
 	
 	public String getCountry(String code) {
+		ObjectRelation.addRelation(mCountry, code);
 		return mCountry[getLocale(code)];
 	}
 	
 	public String getDescription(String code) {
+		ObjectRelation.addRelation(mDescription, code);
 		return mDescription[getLocale(code)];
 	}
 
 	public String getChangeLog(String code) {
+		ObjectRelation.addRelation(mChangeLog, code);
 		return mChangeLog[getLocale(code)];
 	}
 	
@@ -135,11 +141,13 @@ public class CatalogMap {
 	}
 
 	public boolean completeEqual(CatalogMap other) {
+		ObjectRelation.addRelation(this, other);
 		return locationEqual(other) 
 		&& mTimestamp == other.mTimestamp;
 	}
 
 	public boolean locationEqual(CatalogMap other) {
+		ObjectRelation.addRelation(this, other);
 		return mCountry[0].equals(other.mCountry[0])
 		&& mCity[0].equals(other.mCity[0]);
 	}	
@@ -157,6 +165,7 @@ public class CatalogMap {
 			mLocaleIndex = idx;
 		}
 		Integer localeId = mLocaleIndex.get(code);
+		ObjectRelation.addRelation(localeId, code);
 		return localeId != null ? localeId : 0;
 	}
 	
