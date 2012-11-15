@@ -51,6 +51,7 @@ import java.util.Locale;
 import org.ametro.R;
 import org.ametro.catalog.storage.CatalogStorage;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -75,6 +76,7 @@ public class GlobalSettings {
 					String[] parts = StringUtil.parseStringArray(path);
 					FilePath = parts[0];
 					ViewName = parts[1];
+					ObjectRelation.addRelation(parts, path);
 				}catch(Throwable e){
 				}
 			}
@@ -88,6 +90,7 @@ public class GlobalSettings {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.remove(PREFERENCE_PACKAGE_FILE_NAME);
 		editor.commit();
+		ObjectRelation.addRelation(preferences, context);
 	}
 	
 	public static void setCurrentMap(Context context, String file, String view){
@@ -95,41 +98,49 @@ public class GlobalSettings {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(PREFERENCE_PACKAGE_FILE_NAME, file + "," + view);
 		editor.commit();
+		ObjectRelation.addRelation(editor, context, file, view);
 	}
 
 	public static boolean isZoomControlsEnabled(Context context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		ObjectRelation.addRelation(preferences, context);
 		return preferences.getBoolean(PREFERENCE_ENABLE_ZOOM_CONTROLS, true);
 	}
 	
 	public static boolean isZoomUsingVolumeEnabled(Context context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		ObjectRelation.addRelation(preferences, context);
 		return preferences.getBoolean(PREFERENCE_ENABLE_ZOOM_VOLUME_CONTROLS, true);
 	}
 	
 	public static int getTrackballScrollSpeed(Context context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		ObjectRelation.addRelation(preferences, context);
 		return preferences.getInt(PREFERENCE_TRACKBALL_SCROLL_SPEED, 10);
 	}
 	
 	public static MapPath getCurrentMap(Context context){
 		SharedPreferences preferences = context.getSharedPreferences(Constants.PREFERENCE_NAME, 0);
+		ObjectRelation.addRelation(preferences, context);
 		return new MapPath(preferences.getString(PREFERENCE_PACKAGE_FILE_NAME, null));
 	}
 	
 	public static boolean isAntiAliasingEnabled(Context context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		ObjectRelation.addRelation(preferences, context);
 		return preferences.getBoolean(PREFERENCE_ENABLE_ANTI_ALIAS, true);
 	}
 
 	public static boolean isAntiAliasingDisableOnScroll(Context context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		ObjectRelation.addRelation(preferences, context);
 		return preferences.getBoolean(PREFERENCE_DISABLE_ANTI_ALIAS_ON_SCROLL, true);
 	}
 
 	
 	public static String getLanguage(Context context){
 		String code = PreferenceManager.getDefaultSharedPreferences(context).getString(PREFERENCE_LOCALE, "auto");
+		ObjectRelation.addRelation(code, context);
 		if(StringUtil.isNullOrEmpty(code) || "auto".equalsIgnoreCase(code)){
 			return mDefaultLocale;
 		}else{
@@ -138,26 +149,32 @@ public class GlobalSettings {
 	}
 	
     public static String getLocalCatalogMapFileName(String systemName) {
+    	ObjectRelation.addRelation(null, systemName);
         return new File(LOCAL_CATALOG_PATH, systemName).getAbsolutePath().toLowerCase();
     }
 
     public static String getTemporaryImportMapFile(String systemName) {
+    	ObjectRelation.addRelation(null, systemName);
         return new File(TEMP_CATALOG_PATH, systemName.replace(MAP_FILE_TYPE, IMPORT_FILE_TYPE)).getAbsolutePath().toLowerCase();
     }
 
     public static String getTemporaryDownloadMapFile(String systemName) {
+    	ObjectRelation.addRelation(null, systemName);
         return new File(TEMP_CATALOG_PATH, systemName.replace(MAP_FILE_TYPE, DOWNLOAD_FILE_TYPE)).getAbsolutePath().toLowerCase();
     }
 
 	public static boolean isImportEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_PMZ_IMPORT, false);
 	}
 
 	public static boolean isCountryIconsEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_ENABLE_COUNTRY_ICONS, true);
 	}
 
 	public static boolean isLocateUserEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_ENABLE_LOCATION, false);
 	}
 
@@ -166,9 +183,11 @@ public class GlobalSettings {
 		Editor editor = prefs.edit();
 		editor.putBoolean(PREFERENCE_ENABLE_COUNTRY_ICONS, enabled);
 		editor.commit();
+		ObjectRelation.addRelation(editor, context);
 	}
 
 	public static long getUpdateDate(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getLong(PREFERENCE_ONLINE_CATALOG_UPDATE_DATE, 0);
 	}
 
@@ -177,9 +196,11 @@ public class GlobalSettings {
 		Editor editor = prefs.edit();
 		editor.putLong(PREFERENCE_ONLINE_CATALOG_UPDATE_DATE, timestamp);
 		editor.commit();
+		ObjectRelation.addRelation(editor, context);
 	}
 	
 	public static boolean isAcceptedEULA(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_IS_EULA_ACCEPTED, false);
 	}
 	
@@ -188,6 +209,7 @@ public class GlobalSettings {
 		Editor editor = prefs.edit();
 		editor.putBoolean(PREFERENCE_IS_EULA_ACCEPTED, accepted);
 		editor.commit();
+		ObjectRelation.addRelation(editor, context);
 	}
 
 	public static boolean isChangeLogShowed(Context context) {
@@ -196,6 +218,7 @@ public class GlobalSettings {
 			PackageInfo info;
 			info = manager.getPackageInfo(context.getPackageName(), 0);
 			String versionName = info.versionName;
+			ObjectRelation.addRelation(versionName, context);
 			return versionName.equals( PreferenceManager.getDefaultSharedPreferences(context).getString(PREFERENCE_CHANGE_LOW_SHOWED, null) );
 		}catch(Exception ex)
 		{
@@ -213,6 +236,7 @@ public class GlobalSettings {
 			Editor editor = prefs.edit();
 			editor.putString(PREFERENCE_CHANGE_LOW_SHOWED, info.versionName);
 			editor.commit();
+			ObjectRelation.addRelation(editor, context);
 		}catch(Exception ex)
 		{
 			
@@ -221,6 +245,7 @@ public class GlobalSettings {
 	
 	public static long getUpdatePeriod(Context context) {
 		String value = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.pref_auto_update_period_key), null);
+		ObjectRelation.addRelation(value, context);
 		if("weekly".equalsIgnoreCase(value)){
 			return 604800;
 		}
@@ -235,6 +260,7 @@ public class GlobalSettings {
 
 	public static int getRendererType(Context context) {
 		String value = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.pref_renderer_type_key), "1");
+		ObjectRelation.addRelation(value, context);
 		if("async".equalsIgnoreCase(value)){
 			return 1;
 		}else{
@@ -245,27 +271,33 @@ public class GlobalSettings {
 	
 	public static boolean isUpdateOnlyByWifi(Context context) {
 		String value = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.pref_auto_update_networks_key), "wifi");
+		ObjectRelation.addRelation(value, context);
 		return "wifi".equalsIgnoreCase(value);
 	}
 	
 	public static boolean isUpdateByAnyNetwork(Context context){
 		String value = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.pref_auto_update_networks_key), "wifi");
+		ObjectRelation.addRelation(value, context);
 		return "any_other".equalsIgnoreCase(value);
 	}
 		
 	public static boolean isDebugMessagesEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_DEBUG, false);
 	}
 
 	public static boolean isAutoUpdateIndexEveryHourEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_AUTO_UPDATE_ON_SHOW, false);
 	}
 
 	public static boolean isAutoUpdateIndexEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_AUTO_UPDATE_INDEX, false);
 	}
 
 	public static boolean isAutoUpdateMapsEnabled(Context context) {
+		ObjectRelation.addRelation(null, context);
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFERENCE_AUTO_UPDATE_MAPS, false);
 	}
 

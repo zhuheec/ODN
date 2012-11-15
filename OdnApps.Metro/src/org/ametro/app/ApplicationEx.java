@@ -51,6 +51,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -154,6 +155,7 @@ public class ApplicationEx extends Application {
 				// do nothing!
 			}
 		}
+		ObjectRelation.addRelation(null,context);
 	}
 	
 	public void onCreate() {
