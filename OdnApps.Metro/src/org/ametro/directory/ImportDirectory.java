@@ -28,6 +28,7 @@ import java.util.HashMap;
 
 import org.ametro.app.Constants;
 import org.ametro.util.csv.CsvReader;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.util.Log;
@@ -57,6 +58,9 @@ public class ImportDirectory {
 			this.mFileName = mFileName;
 			this.mCityId = mCity;
 			this.mCharset = mCharSet;
+			ObjectRelation.addRelation(this.mFileName, mFileName);
+			ObjectRelation.addRelation(this.mCityId, mCity);
+			ObjectRelation.addRelation(this.mCharset, mCharSet);
 		}
 
 		public String getMapSystemName() {
@@ -69,6 +73,7 @@ public class ImportDirectory {
 		try {
 			InputStream strm = context.getAssets().open("imports.dict");
 			CsvReader reader = new CsvReader(new BufferedReader(new InputStreamReader(strm, "utf-8")),',');
+			ObjectRelation.addRelation(strm, context);
 			if(reader.next()){
 				while(reader.next()){
 					String fileName = reader.getString(0).toLowerCase();
@@ -86,6 +91,7 @@ public class ImportDirectory {
 	}
 
 	public Entity get(String fileName){
+		ObjectRelation.addRelation(mIndex, fileName);
 		return mIndex.get(fileName);
 	}
 	

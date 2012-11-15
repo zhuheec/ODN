@@ -33,6 +33,7 @@ import org.ametro.directory.CityStationDictionary.Entity;
 import org.ametro.model.ext.ModelLocation;
 import org.ametro.util.DateUtil;
 import org.ametro.util.csv.CsvReader;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 
@@ -40,10 +41,12 @@ public  class StationDirectory
 {
 	public StationDirectory(Context context){
 		mContext = context;
+		ObjectRelation.addRelation(mContext, context);
 	}
 	
 	public long getTimestamp(File pmzFile){
 		File gpsFile = new File(pmzFile.getAbsolutePath().replace(".pmz", ".gps"));
+		ObjectRelation.addRelation(gpsFile, pmzFile);
 		if(gpsFile.exists()){
 			return DateUtil.toUTC(gpsFile.lastModified());
 		}else{

@@ -29,6 +29,7 @@ import java.util.HashMap;
 
 import org.ametro.app.Constants;
 import org.ametro.util.csv.CsvReader;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.util.Log;
@@ -63,6 +64,7 @@ public class CountryDirectory {
 		}
 		
 		public String getName(String code) {
+			ObjectRelation.addRelation(mLocaleToName, code);
 			return mLocaleToName.containsKey(code) ? mLocaleToName.get(code) : mDefaultName;
 		}
 
@@ -87,6 +89,10 @@ public class CountryDirectory {
 			this.mLocales = locales;
 			this.mLocaleToName = new HashMap<String, String>();
 			fillNames(names, locales);
+			ObjectRelation.addRelation(this.mISO2, iso2);
+			ObjectRelation.addRelation(this.mISO3, iso3);
+			ObjectRelation.addRelation(this.mNames, names);
+			ObjectRelation.addRelation(this.mLocales, locales);			
 		}
 
 		private void fillNames(String[] names, String[] locales) {
@@ -105,6 +111,8 @@ public class CountryDirectory {
 					mLocaleToName.put(loc, null);
 				}
 			}
+			ObjectRelation.addRelation(len, locales);
+			ObjectRelation.addRelation(namesLen, names);
 		}
 	}
 	
@@ -114,6 +122,7 @@ public class CountryDirectory {
 		try {
 			InputStream strm = context.getAssets().open("countries.dict");
 			CsvReader reader = new CsvReader(new BufferedReader(new InputStreamReader(strm, "utf-8")),',');
+			ObjectRelation.addRelation(strm, context);
 			if(reader.next()){
 				String[] locales = getLocales(reader);
 				while(reader.next()){
@@ -143,6 +152,7 @@ public class CountryDirectory {
 		for(int i = start; i<len; i++){
 			locales.add(reader.getString(i));
 		}
+		ObjectRelation.addRelation(locales, reader);
 		return (String[]) locales.toArray(new String[locales.size()]);
 	}
 
@@ -157,6 +167,7 @@ public class CountryDirectory {
 		for(int i = len; i < count; i++){
 			names.add(null);
 		}
+		ObjectRelation.addRelation(names, reader);
 		return (String[]) names.toArray(new String[names.size()]);
 	}
 	
@@ -165,6 +176,7 @@ public class CountryDirectory {
 	}
 	
 	public Entity getByName(String name){
+		ObjectRelation.addRelation(mNameIndex, name);
 		return mNameIndex.get(name);
 	}
 	

@@ -24,6 +24,7 @@ import java.io.File;
 
 import org.ametro.app.ApplicationEx;
 import org.ametro.model.TransportType;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 
@@ -49,6 +50,7 @@ public class CatalogMapSuggestion {
 		this.mImportEntity = importEntity;
 		this.mCityEntity = cityEntity;
 		this.mCountryEntity = countryEntity;
+		ObjectRelation.addRelation(this, file, city, country, countryIso, importEntity, cityEntity, countryEntity);
 	}
 
 	public ImportDirectory.Entity getImportEntity() {
@@ -76,10 +78,12 @@ public class CatalogMapSuggestion {
 	}
 
 	public static CatalogMapSuggestion create(Context context, File file, String city, String country){
+		ObjectRelation.addRelation(null, context, file, city, country);
 		return create(context, file, city, country, null, TransportType.UNKNOWN_ID);
 	}
 
 	public String getCity(String languageCode) {
+		ObjectRelation.addRelation(mCityEntity, languageCode);
 		return mCityEntity!=null ? mCityEntity.getName(languageCode) : mCity;
 	}
 
@@ -118,6 +122,10 @@ public class CatalogMapSuggestion {
 					countryEntity = app.getCountryDirectory().getByName( country );
 				}
 			}
+			ObjectRelation.addRelation(app, context);
+			ObjectRelation.addRelation(fileName, file);
+			ObjectRelation.addRelation(cityEntity, city);
+			ObjectRelation.addRelation(countryEntity, country);
 			return new CatalogMapSuggestion(file, city, country, countryIso, transports, importEntity, cityEntity, countryEntity);
 		}	
 }

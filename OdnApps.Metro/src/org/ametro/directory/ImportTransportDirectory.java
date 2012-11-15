@@ -28,6 +28,7 @@ import java.util.HashMap;
 import org.ametro.app.Constants;
 import org.ametro.model.TransportType;
 import org.ametro.util.csv.CsvReader;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.util.Log;
@@ -58,9 +59,12 @@ public class ImportTransportDirectory {
 			this.mFileName = fileName;
 			this.mTransportFileName = transportFileName;
 			this.mTransportType = transportType;
+			ObjectRelation.addRelation(this.mFileName, fileName);
+			ObjectRelation.addRelation(this.mTransportFileName, transportFileName);
 		}
 
 		public String getName(String locale) {
+			ObjectRelation.addRelation(this, locale);
 			return mFileName;
 		}
 
@@ -71,6 +75,7 @@ public class ImportTransportDirectory {
 		try {
 			InputStream strm = context.getAssets().open("transports.dict");
 			CsvReader reader = new CsvReader(new BufferedReader(new InputStreamReader(strm, "utf-8")),',');
+			ObjectRelation.addRelation(strm, context);
 			if(reader.next()){
 				while(reader.next()){
 					String fileName = reader.readString();
@@ -88,6 +93,7 @@ public class ImportTransportDirectory {
 	}
 	
 	public TransportMapEntity get(String fileName, String tranposrtFileName){
+		ObjectRelation.addRelation(mIndex, fileName, tranposrtFileName);
 		return mIndex.get(fileName.toLowerCase() + ":" + tranposrtFileName.toLowerCase());
 	}
 	

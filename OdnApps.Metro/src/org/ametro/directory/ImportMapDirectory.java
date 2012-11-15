@@ -29,6 +29,7 @@ import java.util.HashMap;
 import org.ametro.app.Constants;
 import org.ametro.model.TransportType;
 import org.ametro.util.csv.CsvReader;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.util.Log;
@@ -65,6 +66,7 @@ public class ImportMapDirectory {
 		}
 		
 		public String getName(String code) {
+			ObjectRelation.addRelation(mLocaleToName, code);
 			return mLocaleToName.containsKey(code) ? mLocaleToName.get(code) : mDefaultName;
 		}
 
@@ -91,6 +93,10 @@ public class ImportMapDirectory {
 			this.mLocaleToName = new HashMap<String, String>();
 			this.mIsMain = isMain;
 			fillNames(names, locales);
+			ObjectRelation.addRelation(this.mFileName, fileName);
+			ObjectRelation.addRelation(this.mMapFileName, mapFileName);
+			ObjectRelation.addRelation(this.mNames, names);
+			ObjectRelation.addRelation(this.mLocales, locales);
 		}
 
 		private void fillNames(String[] names, String[] locales) {
@@ -109,6 +115,8 @@ public class ImportMapDirectory {
 					mLocaleToName.put(loc, null);
 				}
 			}
+			ObjectRelation.addRelation(len, locales);
+			ObjectRelation.addRelation(namesLen, names);
 		}
 	}
 	
@@ -144,6 +152,8 @@ public class ImportMapDirectory {
 		for(int i = start; i<len; i++){
 			locales.add(reader.getString(i));
 		}
+		ObjectRelation.addRelation(len, reader);
+		ObjectRelation.addRelation(locales, reader);
 		return (String[]) locales.toArray(new String[locales.size()]);
 	}
 
@@ -158,10 +168,12 @@ public class ImportMapDirectory {
 		for(int i = len; i < count; i++){
 			names.add(null);
 		}
+		ObjectRelation.addRelation(names, reader);
 		return (String[]) names.toArray(new String[names.size()]);
 	}	
 	
 	public ImportMapEntity get(String fileName, String mapFileName){
+		ObjectRelation.addRelation(mIndex, fileName, mapFileName);
 		return mIndex.get(fileName.toLowerCase() + ":" + mapFileName.toLowerCase());
 	}
 	

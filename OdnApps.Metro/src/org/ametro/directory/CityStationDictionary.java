@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.ametro.model.ext.ModelLocation;
+import org.zh.odn.trace.ObjectRelation;
 
 public class CityStationDictionary
 {
@@ -50,6 +51,9 @@ public class CityStationDictionary
 			mLineSystemName = lineSystemName;
 			mStationSystemName = stationSystemName;
 			mLocation = location;
+			ObjectRelation.addRelation(mLineSystemName, lineSystemName);
+			ObjectRelation.addRelation(mStationSystemName, stationSystemName);
+			ObjectRelation.addRelation(mLocation, location);
 		}
 	}
 	
@@ -59,6 +63,8 @@ public class CityStationDictionary
 	public CityStationDictionary(HashMap<String,HashMap<String,Entity>> index, ArrayList<String> comments){
 		mComments = comments;
 		mData = index;
+		ObjectRelation.addRelation(mComments, comments);
+		ObjectRelation.addRelation(mData, index);
 	}
 	
 	public ArrayList<String> getComments(){
@@ -67,6 +73,7 @@ public class CityStationDictionary
 	
 	public ModelLocation getStationLocation(String lineSystemName, String stationSystemName){
 		Entity r = getRecord(lineSystemName, stationSystemName);
+		ObjectRelation.addRelation(r, lineSystemName, stationSystemName);
 		if(r!=null){
 			return r.getLocation();
 		}
@@ -75,6 +82,7 @@ public class CityStationDictionary
 
 	public Entity getRecord(String lineSystemName, String stationSystemName){
 		HashMap<String, Entity> city2rec = mData.get(lineSystemName);
+		ObjectRelation.addRelation(city2rec, lineSystemName, stationSystemName);
 		if(city2rec!=null){
 			return city2rec.get(stationSystemName);
 		}

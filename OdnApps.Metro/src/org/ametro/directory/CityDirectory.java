@@ -31,6 +31,7 @@ import java.util.TreeMap;
 import org.ametro.app.Constants;
 import org.ametro.model.ext.ModelLocation;
 import org.ametro.util.csv.CsvReader;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.location.Location;
@@ -67,6 +68,7 @@ public class CityDirectory {
 		}
 
 		public String getName(String code) {
+			ObjectRelation.addRelation(mLocaleToName, code);
 			return mLocaleToName.containsKey(code) ? mLocaleToName.get(code) : mDefaultName;
 		}
 
@@ -91,6 +93,9 @@ public class CityDirectory {
 			this.mLocales = locales;
 			this.mLocaleToName = new HashMap<String, String>();
 			fillNames(names, locales);
+			ObjectRelation.addRelation(this.mLocation, location);
+			ObjectRelation.addRelation(this.mNames, names);
+			ObjectRelation.addRelation(this.mLocales, locales);
 		}
 
 		private void fillNames(String[] names, String[] locales) {
@@ -109,6 +114,8 @@ public class CityDirectory {
 					mLocaleToName.put(loc, null);
 				}
 			}
+			ObjectRelation.addRelation(len, locales);
+			ObjectRelation.addRelation(namesLen, names);
 		}
 	}
 	
@@ -118,6 +125,7 @@ public class CityDirectory {
 		try {
 			InputStream strm = context.getAssets().open("cities.dict");
 			CsvReader reader = new CsvReader(new BufferedReader(new InputStreamReader(strm, "utf-8")),',');
+			ObjectRelation.addRelation(strm, context);
 			if(reader.next()){
 				String[] locales = getLocales(reader);
 				while(reader.next()){
@@ -156,6 +164,7 @@ public class CityDirectory {
 		for(int i = start; i<len; i++){
 			locales.add(reader.getString(i));
 		}
+		ObjectRelation.addRelation(len, reader);
 		return (String[]) locales.toArray(new String[locales.size()]);
 	}
 
@@ -178,6 +187,7 @@ public class CityDirectory {
 	}
 
 	public Entity getByName(String name){
+		ObjectRelation.addRelation(mNameIndex, name);
 		return mNameIndex.get(name);
 	}
 
@@ -198,6 +208,7 @@ public class CityDirectory {
 				return distances.get(nearest);
 			}
 		}
+		ObjectRelation.addRelation(distances, location);
 		return null;
 	}
 	
