@@ -29,6 +29,7 @@ import org.ametro.catalog.CatalogMap;
 import org.ametro.catalog.storage.CatalogStorage;
 import org.ametro.model.Model;
 import org.ametro.model.storage.ModelBuilder;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -95,11 +96,14 @@ public class LoadFileCatalogTask extends LoadBaseCatalogTask {
 	public LoadFileCatalogTask(int catalogId, File file, File path, boolean forceRefresh) {
 		super(catalogId, file, forceRefresh);
 		mPath = path;
+		ObjectRelation.addRelation(this, file);
+		ObjectRelation.addRelation(mPath, file);
 	}
 
 	protected LoadFileCatalogTask(Parcel in) {
 		super(in);
 		mPath = new File(in.readString());
+		ObjectRelation.addRelation(mPath, in);
 	}
 	
 	public int describeContents() {
@@ -109,10 +113,12 @@ public class LoadFileCatalogTask extends LoadBaseCatalogTask {
 	public void writeToParcel(Parcel out, int flags) {
 		super.writeToParcel(out, flags);
 		out.writeString(mPath.getAbsolutePath());
+		ObjectRelation.addRelation(this, out);
 	}
 	
 	public static final Parcelable.Creator<LoadFileCatalogTask> CREATOR = new Parcelable.Creator<LoadFileCatalogTask>() {
 		public LoadFileCatalogTask createFromParcel(Parcel in) {
+			ObjectRelation.addRelation(this, in);
 			return new LoadFileCatalogTask(in);
 		}
 

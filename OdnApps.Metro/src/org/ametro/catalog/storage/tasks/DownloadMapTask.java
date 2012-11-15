@@ -35,6 +35,7 @@ import org.ametro.model.storage.ModelBuilder;
 import org.ametro.util.FileUtil;
 import org.ametro.util.IDownloadListener;
 import org.ametro.util.WebUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -51,6 +52,7 @@ public class DownloadMapTask extends UpdateMapTask implements IDownloadListener 
 	
 	public DownloadMapTask(String systemName) {
 		super(systemName);
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	protected void run(Context context) throws Exception {
@@ -87,11 +89,13 @@ public class DownloadMapTask extends UpdateMapTask implements IDownloadListener 
 		if(mFailReason!=null){
 			throw new Exception("Map download failed", mFailReason);
 		}
+		ObjectRelation.addRelation(this, context);
 		
 	}
 	
 	public DownloadMapTask(Parcel in) {
 		super(in);
+		ObjectRelation.addRelation(this, in);
 	}
 
 	public static final Parcelable.Creator<DownloadMapTask> CREATOR = new Parcelable.Creator<DownloadMapTask>() {
@@ -121,6 +125,7 @@ public class DownloadMapTask extends UpdateMapTask implements IDownloadListener 
 		//Catalog.save(mLocalCatalog, Constants.LOCAL_CATALOG_STORAGE);
 		mCompleted = true;
 		ApplicationEx.getInstance().getCatalogStorage().requestCatalogSave(CatalogStorage.LOCAL);
+		ObjectRelation.addRelation(this, context, file);
 	}
 
 	public void onFailed(Object context, File file, Throwable reason) {
@@ -129,6 +134,7 @@ public class DownloadMapTask extends UpdateMapTask implements IDownloadListener 
 			Log.e(Constants.LOG_TAG_MAIN, message, reason);
 		}
 		mFailReason = reason;
+		ObjectRelation.addRelation(mFailReason, reason);
 	}
 
 	public boolean onUpdate(Object context, long position, long total) throws CanceledException {

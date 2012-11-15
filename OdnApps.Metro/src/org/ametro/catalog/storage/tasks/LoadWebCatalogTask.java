@@ -36,6 +36,7 @@ import org.ametro.catalog.storage.CatalogDeserializer;
 import org.ametro.util.FileUtil;
 import org.ametro.util.IDownloadListener;
 import org.ametro.util.WebUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -95,6 +96,9 @@ public class LoadWebCatalogTask extends LoadBaseCatalogTask implements IDownload
 		super(catalogId, file, forceRefresh);
 		mCatalogUrl = catalogUrl;
 		mCatalogBaseUrls = catalogBaseUrls;
+		ObjectRelation.addRelation(this, file);
+		ObjectRelation.addRelation(mCatalogUrl, catalogUrl);
+		ObjectRelation.addRelation(mCatalogBaseUrls, catalogBaseUrls);
 	}
 
 	protected LoadWebCatalogTask(Parcel in) {
@@ -102,6 +106,7 @@ public class LoadWebCatalogTask extends LoadBaseCatalogTask implements IDownload
 		mCatalogUrl = in.readString();
 		mCatalogBaseUrls = new String[in.readInt()]; 
 		in.readStringArray(mCatalogBaseUrls);
+		ObjectRelation.addRelation(this, in);
 	}
 	
 	public int describeContents() {
@@ -113,10 +118,12 @@ public class LoadWebCatalogTask extends LoadBaseCatalogTask implements IDownload
 		out.writeString(mCatalogUrl);
 		out.writeInt(mCatalogBaseUrls.length);
 		out.writeStringArray(mCatalogBaseUrls);
+		ObjectRelation.addRelation(this, out);
 	}
 	
 	public static final Parcelable.Creator<LoadWebCatalogTask> CREATOR = new Parcelable.Creator<LoadWebCatalogTask>() {
 		public LoadWebCatalogTask createFromParcel(Parcel in) {
+			ObjectRelation.addRelation(this, in);
 			return new LoadWebCatalogTask(in);
 		}
 
@@ -127,6 +134,7 @@ public class LoadWebCatalogTask extends LoadBaseCatalogTask implements IDownload
 
 	public void onBegin(Object context, File file) {
 		FileUtil.delete(file);
+		ObjectRelation.addRelation(this, context, file);
 	}
 
 	public void onDone(Object context, File file) throws Exception {
@@ -134,6 +142,7 @@ public class LoadWebCatalogTask extends LoadBaseCatalogTask implements IDownload
 			File catalogFile;
 			ZipInputStream zip = null;
 			String fileName = null;
+			ObjectRelation.addRelation(zip, file);
 			try{
 				zip = new ZipInputStream(new FileInputStream(file));
 				ZipEntry zipEntry = zip.getNextEntry();
@@ -170,6 +179,7 @@ public class LoadWebCatalogTask extends LoadBaseCatalogTask implements IDownload
 	public boolean onUpdate(Object context, long position, long total) throws Exception {
 		update(position, total, mProgressMessage);
 		cancelCheck(); // can throws CanceledException 
+		ObjectRelation.addRelation(this, context);
 		return true;
 	}
 

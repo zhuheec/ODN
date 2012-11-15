@@ -31,6 +31,7 @@ import org.ametro.util.FileUtil;
 import org.ametro.util.IDownloadListener;
 import org.ametro.util.WebUtil;
 import org.ametro.util.ZipUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -98,6 +99,8 @@ public class DownloadIconsTask extends BaseTask implements IDownloadListener {
 			}
 		}
 		
+		ObjectRelation.addRelation(mNotificationManager, context);
+		ObjectRelation.addRelation(mContext, context);
 	}
 
 	private DownloadIconsTask(Parcel in) {
@@ -116,6 +119,7 @@ public class DownloadIconsTask extends BaseTask implements IDownloadListener {
 
 	public static final Parcelable.Creator<DownloadIconsTask> CREATOR = new Parcelable.Creator<DownloadIconsTask>() {
 		public DownloadIconsTask createFromParcel(Parcel in) {
+			ObjectRelation.addRelation(this, in);
 			return new DownloadIconsTask(in);
 		}
 
@@ -126,6 +130,7 @@ public class DownloadIconsTask extends BaseTask implements IDownloadListener {
 
 	public void onBegin(Object context, File file) {
 		displayNotification(mResources.getString(R.string.msg_begin_download_icons),true,DOWNLOAD_ICON);
+		ObjectRelation.addRelation(this, context, file);
 	}
 
 	public void onDone(Object context, File file) throws Exception {
@@ -149,6 +154,7 @@ public class DownloadIconsTask extends BaseTask implements IDownloadListener {
 			Log.e(Constants.LOG_TAG_MAIN,mResources.getString(R.string.msg_icons_pack_download_failed),reason);
 		}
 		displayNotification(mResources.getString(R.string.msg_icons_pack_download_failed),false,FAILED_ICON);
+		ObjectRelation.addRelation(this, context, file, reason);
 	}
 	
 	public void onCanceled(Object context, File file) {
@@ -164,6 +170,7 @@ public class DownloadIconsTask extends BaseTask implements IDownloadListener {
 		PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, new Intent(mContext, CatalogTabHostActivity.class), 0);
 		notification.setLatestEventInfo(mContext, "aMetro" ,message, contentIntent);
 		mNotificationManager.notify(DOWNLOAD_ICONS_ID, notification);
+		ObjectRelation.addRelation(notification, message);
 	}
 
 	public static BaseTask create(boolean force) {

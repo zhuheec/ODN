@@ -20,6 +20,8 @@
  */
 package org.ametro.catalog.storage.tasks;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.os.Parcel;
 
 public abstract class UpdateMapTask extends BaseTask {
@@ -28,10 +30,12 @@ public abstract class UpdateMapTask extends BaseTask {
 
 	public UpdateMapTask(String systemName) {
 		this.mSystemName = systemName;
+		ObjectRelation.addRelation(this.mSystemName, systemName);
 	}
 	
 	public UpdateMapTask(Parcel in) {
 		this.mSystemName = in.readString();
+		ObjectRelation.addRelation(this.mSystemName, in);
 	}
 
 	public Object getTaskId() {
@@ -48,6 +52,7 @@ public abstract class UpdateMapTask extends BaseTask {
 
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeString(mSystemName);
+		ObjectRelation.addRelation(this, out);
 	}
 
 }

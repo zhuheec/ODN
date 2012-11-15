@@ -31,6 +31,7 @@ import org.ametro.catalog.storage.CatalogStorage;
 import org.ametro.model.Model;
 import org.ametro.model.storage.ModelBuilder;
 import org.ametro.util.FileUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -40,6 +41,7 @@ public class ImportMapTask extends UpdateMapTask {
 
 	public ImportMapTask(String systemName) {
 		super(systemName);
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	protected void run(Context context) throws Exception {
@@ -73,10 +75,12 @@ public class ImportMapTask extends UpdateMapTask {
 		localCatalog.appendMap(localMap);
 		ApplicationEx.getInstance().getCatalogStorage().requestCatalogSave(CatalogStorage.LOCAL);
 		update(100,100,mSystemName);
+		ObjectRelation.addRelation(this, context);
 	}
 	
 	public ImportMapTask(Parcel in) {
 		super(in);
+		ObjectRelation.addRelation(this, in);
 	}
 
 	public static final Parcelable.Creator<ImportMapTask> CREATOR = new Parcelable.Creator<ImportMapTask>() {

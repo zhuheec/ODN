@@ -20,6 +20,8 @@
  */
 package org.ametro.catalog.storage.tasks;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.content.Context;
 import android.os.Parcelable;
 
@@ -32,6 +34,7 @@ public abstract class BaseTask implements Parcelable {
 		
 		public CanceledException(String message) {
 			super(message);
+			ObjectRelation.addRelation(this, message);
 		}
 
 		private static final long serialVersionUID = -6925970064795146727L;
@@ -85,6 +88,8 @@ public abstract class BaseTask implements Parcelable {
 		}
 		mEndTimestamp = System.currentTimeMillis();
 		mIsRunning = false;
+		ObjectRelation.addRelation(mContext, context);
+		ObjectRelation.addRelation(mCallback, callback);
 	}
 
 	protected void begin() {
@@ -111,12 +116,14 @@ public abstract class BaseTask implements Parcelable {
 
 	protected void failed(Throwable reason) {
 		mCallback.onTaskFailed(this, reason);
+		ObjectRelation.addRelation(mCallback, reason);
 	}
 
 	protected abstract void run(Context context) throws Exception;
 
 	protected void update(long progress, long total, String message) {
 		mCallback.onTaskUpdated(this, progress, total, message);
+		ObjectRelation.addRelation(mCallback, message);
 	}
 
 	public String toString() {

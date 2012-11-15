@@ -36,6 +36,7 @@ import org.ametro.catalog.CatalogMap;
 import org.ametro.catalog.storage.CatalogDeserializer;
 import org.ametro.catalog.storage.CatalogSerializer;
 import org.ametro.util.FileUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -67,12 +68,16 @@ public abstract class LoadBaseCatalogTask extends BaseTask {
 		this.mCatalogId = catalogId;
 		this.mFile = file;
 		this.mForceRefresh = forceRefresh;
+		ObjectRelation.addRelation(this.mFile, file);
 	}
 
 	protected LoadBaseCatalogTask(Parcel in) {
 		mCatalogId = in.readInt();
 		mForceRefresh = in.readInt()!=0;
 		mFile = new File(in.readString());
+		ObjectRelation.addRelation(mCatalogId, in);
+		ObjectRelation.addRelation(mForceRefresh, in);
+		ObjectRelation.addRelation(mFile, in);
 	}
 	
 	protected void begin() {
@@ -83,6 +88,7 @@ public abstract class LoadBaseCatalogTask extends BaseTask {
 	protected void failed(Throwable reason) {
 		mCatalog = getCorruptedCatalog();
 		super.failed(reason);
+		ObjectRelation.addRelation(this, reason);
 	}
 	
 	protected void run(Context context) throws Exception{
@@ -120,6 +126,7 @@ public abstract class LoadBaseCatalogTask extends BaseTask {
 				}
 			}		
 		}
+		ObjectRelation.addRelation(res, context);
 	}
 
 	protected Catalog getEmptyCatalog()
@@ -185,6 +192,7 @@ public abstract class LoadBaseCatalogTask extends BaseTask {
 		out.writeInt(mCatalogId);
 		out.writeInt(mForceRefresh ? 1 : 0);
 		out.writeString(mFile.getAbsolutePath());
+		ObjectRelation.addRelation(this, out);
 	}
 
 }
