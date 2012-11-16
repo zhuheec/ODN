@@ -71,6 +71,7 @@ import org.ametro.model.util.ModelUtil;
 import org.ametro.util.CollectionUtil;
 import org.ametro.util.DateUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 public class PmzStorage implements IModelStorage {
 
@@ -86,6 +87,7 @@ public class PmzStorage implements IModelStorage {
 
 	public Model loadModel(String fileName, Locale locale) throws IOException {
 		PmzImporter importer = new PmzImporter(fileName,false);
+		ObjectRelation.addRelation(this, fileName, locale);
 		try {
 			Model model = importer.getModel();
 			model.setLocale(locale);
@@ -97,6 +99,7 @@ public class PmzStorage implements IModelStorage {
 
 	public Model loadModelDescription(String fileName, Locale locale) throws IOException {
 		PmzImporter importer = new PmzImporter(fileName,true);
+		ObjectRelation.addRelation(this, fileName, locale);
 		try {
 			Model model = importer.getModel();
 			model.setLocale(locale);
@@ -107,14 +110,17 @@ public class PmzStorage implements IModelStorage {
 	}
 
 	public void saveModel(String fileName, Model model) throws IOException {
+		ObjectRelation.addRelation(this, fileName, model);
 		throw new NotImplementedException();
 	}
 
 	public String[] loadModelLocale(String fileName, Model model, int localeId) throws IOException {
+		ObjectRelation.addRelation(this, fileName);
 		throw new NotImplementedException();
 	}
 
 	public SchemeView loadModelView(String fileName, Model model, String name) throws IOException {
+		ObjectRelation.addRelation(this, fileName, model, name);
 		throw new NotImplementedException();
 	}
 
@@ -176,12 +182,14 @@ public class PmzStorage implements IModelStorage {
 					res.add(map.id);
 				}
 			}
+			ObjectRelation.addRelation(this, maps);
 			return CollectionUtil.toArray(res);
 		}
 
 		private TransportStation getStation(String lineSystemName, String stationSystemName)
 		{
 			String key = lineSystemName + "\\" + stationSystemName;
+			ObjectRelation.addRelation(this, lineSystemName, stationSystemName);
 			return mTransportStationIndex.get(key);
 		}
 
@@ -192,6 +200,7 @@ public class PmzStorage implements IModelStorage {
 				String key = lineSystemName + "\\" + station.systemName;
 				mTransportStationIndex.put(key, station);
 			}
+			ObjectRelation.addRelation(this, line);
 		}
 
 		private int[] appendTextArray(String[] texts){
@@ -205,6 +214,7 @@ public class PmzStorage implements IModelStorage {
 				mTextsOriginal.add(txt);
 				mTextsTranslit.add(StringUtil.toTranslit(txt));
 			}
+			ObjectRelation.addRelation(this, texts);
 			return r;
 		}
 
@@ -218,12 +228,14 @@ public class PmzStorage implements IModelStorage {
 				mTextsOriginal.add(ru[i]);
 				mTextsTranslit.add(en[i]);
 			}
+			ObjectRelation.addRelation(this, en, ru);
 			return r;
 		}		
 		private int appendLocalizedText(String txt){
 			int pos = mTextsOriginal.size();
 			mTextsOriginal.add(txt);
 			mTextsTranslit.add(StringUtil.toTranslit(txt));
+			ObjectRelation.addRelation(this, txt);
 			return pos;
 		}
 
@@ -231,6 +243,7 @@ public class PmzStorage implements IModelStorage {
 			int pos = mTextsOriginal.size();
 			mTextsTranslit.add(en);
 			mTextsOriginal.add(ru);
+			ObjectRelation.addRelation(this, en, ru);
 			return pos;
 		}
 		
@@ -243,6 +256,7 @@ public class PmzStorage implements IModelStorage {
 			mImportMapDirectory = ApplicationEx.getInstance().getImportMapDirectory();
 			mImportTransportDirectory = ApplicationEx.getInstance().getImportTransportDirectory();
 			mImportDirectory = ApplicationEx.getInstance().getImportDirectory();
+			ObjectRelation.addRelation(this, fileName);
 		}
 
 		public void execute() throws IOException{
@@ -372,6 +386,7 @@ public class PmzStorage implements IModelStorage {
 					lines.add(prefix + textLine);
 				}
 			}
+			ObjectRelation.addRelation(this, caption, prefix, key, value, section);
 		}
 
 		private void importMapFiles() throws IOException {
@@ -545,6 +560,7 @@ public class PmzStorage implements IModelStorage {
 				spline.points = (ModelPoint[]) points.toArray(new ModelPoint[points.size()]);
 				additionalNodes.put(Model.getSegmentKey(from.id, to.id), spline);
 			}
+			ObjectRelation.addRelation(this, additionalNodes, stationViews, value);
 		}
 
 
@@ -586,6 +602,7 @@ public class PmzStorage implements IModelStorage {
 				}
 				segments.add(segmentView);
 			}
+			ObjectRelation.addRelation(this, view, lineViewIndex, stationViewIndex, additionalNodes);
 			return (SegmentView[]) segments.toArray(new SegmentView[segments.size()]);
 		}
 
@@ -622,6 +639,7 @@ public class PmzStorage implements IModelStorage {
 			}
 			view.width = xmax - xmin + 160;
 			view.height = ymax - ymin + 160;
+			ObjectRelation.addRelation(this, view);
 		}
 
 		private TransferView[] makeTransferViews(SchemeView view, HashMap<Integer,Integer> stationViewIndex) {
@@ -641,6 +659,7 @@ public class PmzStorage implements IModelStorage {
 					transfers.add(v);
 				}
 			}
+			ObjectRelation.addRelation(this, view, stationViewIndex);
 			return (TransferView[]) transfers.toArray(new TransferView[transfers.size()]);	
 		}
 
@@ -668,7 +687,7 @@ public class PmzStorage implements IModelStorage {
 				stationViewIndex.put(v.stationId, v.id);
 			}
 
-
+			ObjectRelation.addRelation(this, line, lineView, stationViewIndex, stationViews, coords, rects, heights);
 		}
 
 		private void importTrpFiles() throws IOException {
@@ -841,6 +860,7 @@ public class PmzStorage implements IModelStorage {
 			}else if(DELAY_RUSH_HOUR_RU.equalsIgnoreCase(delayName)){
 				return DELAY_RUSH_HOUR_EN;
 			}
+			ObjectRelation.addRelation(this, delayName);
 			return StringUtil.toTranslit(delayName);
 		}
 
@@ -908,6 +928,7 @@ public class PmzStorage implements IModelStorage {
 					view.transportTypes = extractViewTransportType(model, transportIndex, view);
 				}
 			}
+			ObjectRelation.addRelation(this, model);
 		}
 
 		private void makeModelViewArrays(final Model model) {
@@ -924,6 +945,7 @@ public class PmzStorage implements IModelStorage {
 		}
 
 		private long extractViewTransportType(final Model model, final HashMap<TransportMap, Long> transportIndex, SchemeView view){
+			ObjectRelation.addRelation(this, model, transportIndex, view);
 			if(view.transports!=null){
 				long transports = 0;
 				for(int mapId : view.transports){
@@ -978,6 +1000,7 @@ public class PmzStorage implements IModelStorage {
 					model.localeTexts[i][model.countryName] = countryEntity.getName(code);
 				}
 			}
+			ObjectRelation.addRelation(this, model);
 		}
 
 		private void makeLineObjects(TransportLine line, String stationList, String drivingList, String aliasesList, ArrayList<Integer> delays) {
@@ -1045,6 +1068,7 @@ public class PmzStorage implements IModelStorage {
 				CollectionUtil.ensureSize(delays,size);
 				line.delays = (Integer[]) delays.toArray(new Integer[size]);
 			}
+			ObjectRelation.addRelation(this, line, stationList, drivingList, aliasesList, delays);
 		}
 
 		private HashMap<String, String> makeAliasDictionary(String aliasesList) {
@@ -1062,6 +1086,7 @@ public class PmzStorage implements IModelStorage {
 					aliases.put(name, displayName);
 				}
 			}
+			ObjectRelation.addRelation(this, aliasesList);
 			return aliases;
 		}
 
@@ -1079,6 +1104,8 @@ public class PmzStorage implements IModelStorage {
 
 			String thisStation = tStations.next();
 			stations.add(thisStation);
+			
+			ObjectRelation.addRelation(this, stationList, drivingList, stations, segments);
 
 			do {
 				if ("(".equals(tStations.getNextDelimeter())) {
@@ -1201,6 +1228,8 @@ public class PmzStorage implements IModelStorage {
 				transfer.owner = mModel;
 				mTransportTransfers.add(transfer);
 			}
+			
+			ObjectRelation.addRelation(this, value);
 		}
 
 		private void findModelFiles() {
