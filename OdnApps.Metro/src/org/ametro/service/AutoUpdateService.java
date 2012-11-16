@@ -44,6 +44,7 @@ import org.ametro.catalog.storage.ICatalogStorageListener;
 import org.ametro.ui.CatalogLocalListActivity;
 import org.ametro.ui.CatalogTabHostActivity;
 import org.ametro.ui.TaskQueuedList;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -130,10 +131,12 @@ public class AutoUpdateService extends Service implements ICatalogStorageListene
 	}	
 
 	public IBinder onBind(Intent intent) {
+		ObjectRelation.addRelation(this, intent);
 		return null;
 	}
 
 	public void onCatalogFailed(int catalogId, String message) {
+		ObjectRelation.addRelation(this, message);
 		if(catalogId==ONLINE && mStage == STAGE_REQUEST_ONLINE_CATALOG){
 			mStage = STAGE_NONE;
 			mOnlineCatalog = null;
@@ -151,6 +154,7 @@ public class AutoUpdateService extends Service implements ICatalogStorageListene
 	}
 
 	public void onCatalogLoaded(int catalogId, Catalog catalog) {
+		ObjectRelation.addRelation(this, catalog);
 		if(catalogId==ONLINE && mStage == STAGE_REQUEST_ONLINE_CATALOG){
 			mStage = STAGE_NONE;
 			mOnlineCatalog = catalog;
@@ -171,6 +175,7 @@ public class AutoUpdateService extends Service implements ICatalogStorageListene
 	}
 
 	public void onCatalogMapDownloadDone(String systemName) {
+		ObjectRelation.addRelation(this, systemName);
 		if(mStage == STAGE_DOWNLOAD_MAPS){
 			if(mDownloadMaps.remove(systemName)){
 				mUpdatedMapCount++;
@@ -182,6 +187,7 @@ public class AutoUpdateService extends Service implements ICatalogStorageListene
 	}
 
 	public void onCatalogMapDownloadFailed(String systemName, Throwable ex) {
+		ObjectRelation.addRelation(this, systemName, ex);
 		if(mStage == STAGE_DOWNLOAD_MAPS){
 			if(mDownloadMaps.remove(systemName)){
 				mFailedMapCount++;

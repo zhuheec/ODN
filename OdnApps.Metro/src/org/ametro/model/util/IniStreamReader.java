@@ -24,6 +24,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.zh.odn.trace.ObjectRelation;
+
 public class IniStreamReader {
 
 	private static final int BUFFER = 8196;
@@ -41,6 +43,7 @@ public class IniStreamReader {
 		mSection = null;
 		mValue = null;
 		mSectionChanged = false;
+		ObjectRelation.addRelation(this, stream);
 	}
 	
 	public String getSection(){

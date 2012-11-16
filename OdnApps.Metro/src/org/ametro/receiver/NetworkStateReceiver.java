@@ -21,6 +21,7 @@
 package org.ametro.receiver;
 
 import org.ametro.app.ApplicationEx;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +31,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
 	public void onReceive(Context context, Intent intent) {
 		ApplicationEx.getInstance().checkAutoUpdate();
+		ObjectRelation.addRelation(this, context, intent);
 	}
 	
 }

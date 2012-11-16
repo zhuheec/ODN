@@ -35,6 +35,7 @@ import org.ametro.model.TransportSegment;
 import org.ametro.model.TransportStation;
 import org.ametro.model.TransportTransfer;
 import org.ametro.model.ext.ModelSpline;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -102,6 +103,7 @@ public class RenderProgram {
 		drawStations(map, mElements);
 		updateRenderQueue();
 		mRenderFilter = ALL;
+		ObjectRelation.addRelation(this, map);
 	} 
 
 	private void updateRenderQueue() {
@@ -129,6 +131,7 @@ public class RenderProgram {
 				appendClipping(v1, renderElements, node.Right);
 			}
 		}
+		ObjectRelation.addRelation(this, v1, renderElements, node);
 	}
 
 	public void appendDoubleClipping(Rect v1, Rect v2, ArrayList<RenderElement> renderElements, ClippingTreeNode node){
@@ -146,6 +149,7 @@ public class RenderProgram {
 				appendDoubleClipping(v1,v2, renderElements, node.Right);
 			}
 		}
+		ObjectRelation.addRelation(this, v1, v2, renderElements, node);
 	}
 
 	private void addClippingTreeElement(Rect rect, RenderElement renderElement, ClippingTreeNode node) {
@@ -163,6 +167,7 @@ public class RenderProgram {
 				node.Elements.add(renderElement);
 			}
 		}
+		ObjectRelation.addRelation(this, rect, renderElement, node);
 	}
 
 	private static void makeClippingTreeNodes(ClippingTreeNode root) {
@@ -240,6 +245,7 @@ public class RenderProgram {
 			}
 		}
 		updateRenderQueue();
+		ObjectRelation.addRelation(this, stations, segments, transfers);
 	}
 
 	private void drawStations(SchemeView map, ArrayList<RenderElement> renderQueue) {
@@ -257,6 +263,7 @@ public class RenderProgram {
 				}
 			}
 		}
+		ObjectRelation.addRelation(this, map, renderQueue);
 	}
 
 	private void drawTransfers(SchemeView map, ArrayList<RenderElement> renderQueue) {
@@ -273,6 +280,7 @@ public class RenderProgram {
 			transferIndex.put(transfer, elementTransfer);
 			transferBackgroundIndex.put(transfer, elementBackground);
 		}
+		ObjectRelation.addRelation(this, map, renderQueue);
 	}
 
 	private void drawLines(SchemeView map, ArrayList<RenderElement> renderQueue) {
@@ -317,6 +325,7 @@ public class RenderProgram {
 		ArrayList<RenderElement> clipping = new ArrayList<RenderElement>(100);
 		appendClipping(v,clipping, mClippingTree);
 		Collections.sort(clipping);
+		ObjectRelation.addRelation(this, viewport);
 		return clipping;
 	}
 
@@ -335,6 +344,7 @@ public class RenderProgram {
 		ArrayList<RenderElement> clipping = new ArrayList<RenderElement>(100);
 		appendDoubleClipping(v1, v2, clipping, mClippingTree);
 		Collections.sort(clipping);
+		ObjectRelation.addRelation(this, viewport1, viewport2);
 		return clipping;
 	}
 

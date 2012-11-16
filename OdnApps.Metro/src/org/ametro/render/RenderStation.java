@@ -24,6 +24,7 @@ package org.ametro.render;
 import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
 import org.ametro.model.TransportStation;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -80,6 +81,7 @@ public class RenderStation extends RenderElement {
         paintColor = localPaintColor;
 
         setProperties(RenderProgram.TYPE_STATION + view.id, new Rect(localX - radius, localY - radius, localX + radius, localY + radius));
+		ObjectRelation.addRelation(this, map, view, station);
     }
 
     public void setAntiAlias(boolean enabled)
@@ -97,6 +99,7 @@ public class RenderStation extends RenderElement {
     public void draw(Canvas canvas) {
         canvas.drawCircle(x, y, radiusExternal, paintBackGround);
         canvas.drawCircle(x, y, radiusInternal, paintColor);
+		ObjectRelation.addRelation(this, canvas);
     }
 
 }

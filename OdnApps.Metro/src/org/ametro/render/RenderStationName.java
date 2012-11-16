@@ -25,6 +25,7 @@ import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
 import org.ametro.model.TransportStation;
 import org.ametro.model.util.ModelUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -144,6 +145,7 @@ public class RenderStationName extends RenderElement {
 
 		Rect box = new Rect(textRect);
 		setProperties(RenderProgram.TYPE_STATION_NAME + view.id, box);
+		ObjectRelation.addRelation(this, map, view, station);
 	}
 
 	private static Point initializeLine(final String text, boolean vertical, final Rect rect, final Paint paint, final Align align) {
@@ -187,6 +189,7 @@ public class RenderStationName extends RenderElement {
 			canvas.drawText(mTextSecondLine, 0, 0, mTextPaint);
 		}
 		canvas.restore();
+		ObjectRelation.addRelation(this, canvas);
 	}
 
 	
