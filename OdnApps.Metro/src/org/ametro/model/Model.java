@@ -26,6 +26,7 @@ import java.util.Locale;
 import org.ametro.model.ext.ModelLocation;
 import org.ametro.model.storage.ModelBuilder;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 public class Model {
 
@@ -103,6 +104,7 @@ public class Model {
 	
 	/****************** LOCALIZATION **********************/
 	public String getLocaleName(Locale locale){
+		ObjectRelation.addRelation(this, locale);
 		if(locale!=null){
 			final int len = locales.length;
 			final String languageCode = locale.getLanguage();
@@ -116,6 +118,7 @@ public class Model {
 	}
 
 	public int getLocaleId(String languageCode){
+		ObjectRelation.addRelation(this, languageCode);
 		if(languageCode!=null){
 			final int len = locales.length;
 			for(int i = 0; i < len; i++){
@@ -128,6 +131,7 @@ public class Model {
 	}
 	
 	public int getLocaleId(Locale locale){
+		ObjectRelation.addRelation(this, locale);
 		if(locale!=null){
 			final int len = locales.length;
 			final String languageCode = locale.getLanguage();
@@ -151,6 +155,7 @@ public class Model {
 
 	public boolean isLocaleLoaded(Locale locale) {
 		int id = getLocaleId(locale);
+		ObjectRelation.addRelation(this, locale);
 		return localeTexts[id]!=null;
 	}
 
@@ -170,6 +175,7 @@ public class Model {
 		}
 		localeCurrent = newLocale;
 		texts = newTexts;
+		ObjectRelation.addRelation(this, locale);
 	}
 
 	public void setLocaleTexts(Locale locale, String[] texts){
@@ -177,6 +183,7 @@ public class Model {
 		if(id!=null){
 			localeTexts[id] = texts;
 		}
+		ObjectRelation.addRelation(this, locale, texts);
 	}
 
 	/********************** STATIC METHODS ***********************/
@@ -203,11 +210,13 @@ public class Model {
 	/*********************** OBJECT METHODS ***********************/
 
 	public boolean completeEqual(Model other) {
+		ObjectRelation.addRelation(this, other);
 		return locationEqual(other) 
 		&& timestamp == other.timestamp;
 	}
 
 	public boolean locationEqual(Model other) {
+		ObjectRelation.addRelation(this, other);
 		return getCountryName().equals(other.getCountryName())
 		&& getCityName().equals(other.getCityName());
 	}
@@ -235,6 +244,7 @@ public class Model {
 	
 	public SchemeView getView(String name) {
 		final Integer id = getViewId(name);
+		ObjectRelation.addRelation(this, name);
 		if(id!=null){
 			return views[id];
 		}
@@ -243,6 +253,7 @@ public class Model {
 	
 	public SchemeView loadView(String name) {
 		final Integer id = getViewId(name);
+		ObjectRelation.addRelation(this, name);
 		if(id!=null){
 			SchemeView v = views[id];
 			if(v==null){
@@ -255,6 +266,7 @@ public class Model {
 
 	public Integer getViewId(String viewName) {
 		final int len = views.length;
+		ObjectRelation.addRelation(this, viewName);
 		for(int i=0;i<len;i++){
 			if(viewSystemNames[i].equals(viewName)){
 				return i;
@@ -294,6 +306,7 @@ public class Model {
 		for(int i=0; i<len; i++){
 			res.add(texts[ authors[i] ]);
 		}
+		ObjectRelation.addRelation(this, languageCode);
 		return res;
 	}
 

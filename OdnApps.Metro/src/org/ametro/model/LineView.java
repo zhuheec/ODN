@@ -22,6 +22,7 @@
 import java.util.ArrayList;
 
 import org.ametro.model.ext.ModelRect;
+import org.zh.odn.trace.ObjectRelation;
 
 public class LineView {
 
@@ -47,6 +48,7 @@ public class LineView {
 				stations.add(station);
 			}
 		}
+		ObjectRelation.addRelation(this, scheme);
 		return stations;
 	}
 	
