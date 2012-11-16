@@ -20,6 +20,8 @@
  */
 package org.ametro.model.route;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -61,6 +63,7 @@ public class RouteParameters implements Parcelable {
 		dest.writeIntArray(this.exclude);
 		dest.writeInt(this.transports.length);
 		dest.writeIntArray(this.transports);
+		ObjectRelation.addRelation(this, dest);
 	}
 
 
@@ -75,6 +78,7 @@ public class RouteParameters implements Parcelable {
 		in.readIntArray(exclude);
 		transports = new int[in.readInt()];		
 		in.readIntArray(transports);
+		ObjectRelation.addRelation(this, in);
 	}
 		
 	public RouteParameters(int from, int to, int[] include, int[] exclude, int flags, int[] transports, int delay)

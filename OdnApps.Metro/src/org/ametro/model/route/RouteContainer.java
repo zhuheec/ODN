@@ -20,6 +20,8 @@
  */
 package org.ametro.model.route;
 
+import org.zh.odn.trace.ObjectRelation;
+
 public class RouteContainer {
 
 	/*package*/ RouteParameters parameters;
@@ -28,6 +30,7 @@ public class RouteContainer {
 	/*package*/ RouteContainer(RouteParameters parameters, TransportRoute[] routes){
 		this.parameters = parameters;
 		this.routes = routes;
+		ObjectRelation.addRelation(this, parameters, routes);
 	}
 
 	public boolean hasRoutes() {
