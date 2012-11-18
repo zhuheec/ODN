@@ -61,6 +61,7 @@ import org.ametro.ui.dialog.SchemeListDialog;
 import org.ametro.ui.view.MultiTouchMapView;
 import org.ametro.util.DateUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -140,9 +141,11 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 				finish();
 			}		
 		}
+		ObjectRelation.addRelation(this, dialog);
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		if(keyCode == KeyEvent.KEYCODE_BACK){
 			SchemeView view = getMapView();
 			if(view!=null){
@@ -186,11 +189,13 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 				Toast.makeText(MapViewActivity.Instance, getString(R.string.msg_route_not_found), Toast.LENGTH_SHORT).show();
 			}
 			super.onPostExecute(result);
+			ObjectRelation.addRelation(this, result);
 		}
 		
 	}
 	
 	public void onClick(View src) {
+		ObjectRelation.addRelation(this, src);
 		if(src == mNavigateListButton && mCurrentRouteView!=null){
 			startActivity(new Intent(this, RouteViewActivity.class));
 		}
@@ -278,6 +283,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 				}
 			}
 		}
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onNewIntent(Intent intent) {
@@ -292,6 +298,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			}
 		} 
 		super.onNewIntent(intent);
+		ObjectRelation.addRelation(this, intent);
 	}
 	
 	protected void onResume() {
@@ -314,6 +321,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ObjectRelation.addRelation(this, data);
 		switch (requestCode) {
 		case REQUEST_MAP:
 			if(resultCode == CatalogTabHostActivity.RESULT_EULA_CANCELED){
@@ -404,7 +412,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		menu.add(0, MAIN_MENU_ABOUT, 8, R.string.menu_about).setIcon(android.R.drawable.ic_menu_help);
 		menu.add(0, MAIN_MENU_LOCATION, 9, R.string.menu_location).setIcon(android.R.drawable.ic_menu_mylocation);
 		//menu.add(0, MAIN_MENU_EXPERIMENTAL, 9,R.string.menu_experimental);
-
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 
@@ -424,6 +432,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 	}
 	
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_CLEAR_SELECTION:
 			clearNavigation(true);
@@ -509,6 +518,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		}
 		mVectorMapView.setCenterPositionAndScale(new PointF( area.centerX(), area.centerY() ), targetScale, true);
 		mVectorMapView.postInvalidate();
+		ObjectRelation.addRelation(this, stations);
 	}
 	
 	public void applySettings(){
@@ -616,6 +626,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(PREFERENCE_FAVORITE_ROUTES + "_" + mModelFileName, routesBudle);
 		editor.commit();
+		ObjectRelation.addRelation(this, routes);
 	}
 
 	public Point[] getFavoriteRoutes()
@@ -634,12 +645,14 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		editor.commit();
 		if (Log.isLoggable(LOG_TAG_MAIN, Log.DEBUG)){
 			Log.d(LOG_TAG_MAIN, getString(R.string.log_save_map_position) + scrollPosition);
+			ObjectRelation.addRelation(this, position);
 		}
 	}
 
 	public PointF loadScrollPosition(String fileSystemName, String viewSystemName) {
 		SharedPreferences preferences = getSharedPreferences(Constants.PREFERENCE_NAME, 0);
 		String pref = preferences.getString(PREFERENCE_SCROLL_POSITION + "_" + fileSystemName + "_" + viewSystemName, null);
+		ObjectRelation.addRelation(this, fileSystemName, viewSystemName);
 		if (pref != null) {
 			return StringUtil.parsePointF(pref);
 		} else {
@@ -654,6 +667,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			editor.remove(PREFERENCE_SCROLL_POSITION + "_" + mapName);
 			editor.commit();
 		}
+		ObjectRelation.addRelation(this, mapName);
 	}
 
 	public void saveZoom(float zoom) {
@@ -669,6 +683,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 	public Float loadZoom(String fileSystemName, String viewSystemName) {
 		SharedPreferences preferences = getSharedPreferences(Constants.PREFERENCE_NAME, 0);
 		String pref = preferences.getString(PREFERENCE_ZOOM_LEVEL + "_" + fileSystemName + "_" + viewSystemName, null);
+		ObjectRelation.addRelation(this, fileSystemName, viewSystemName);
 		if (pref != null) {
 			return StringUtil.parseNullableFloat(pref);
 		} else {
@@ -683,6 +698,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			editor.remove(PREFERENCE_ZOOM_LEVEL + "_" + mapName);
 			editor.commit();
 		}
+		ObjectRelation.addRelation(this, mapName);
 	}
 
 	public SchemeView getMapView() {
@@ -707,6 +723,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 				}
 			}
 		});
+		ObjectRelation.addRelation(this, systemName);
 	}
 	
 	public void onCatalogMapDownloadDone(String systemName) {
@@ -750,6 +767,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		}else{
 			mCurrentStation = null;
 		}
+		ObjectRelation.addRelation(this, station);
 	}
 
 	/*package*/ ArrayList<StationView> getNavigationStations()
@@ -779,6 +797,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			mVectorMapView.setSchemeSelection(stations, null, null);
 			mVectorMapView.postInvalidate();
 		}
+		ObjectRelation.addRelation(this, stations);
 	}
 
 	/*package*/ RouteView getCurrentRouteView() {
@@ -812,6 +831,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			mVectorMapView.setSchemeSelection(mNavigationStations, mNavigationSegments,mNavigationTransfers);
 			mVectorMapView.postInvalidate();
 		}
+		ObjectRelation.addRelation(this, result);
 	}
 
 	/*package*/ boolean isNavigationActive(){
@@ -861,6 +881,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 				mVectorMapView.setCenterPositionAndScale(new PointF( area.centerX(), area.centerY() ), scale, false);
 			}
 		}
+		ObjectRelation.addRelation(this, fileSystemName, viewSystemName);
 	}
 	
 	private void onRequestMap(boolean setNoMapLoadingView) {
@@ -875,6 +896,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 	}
 
 	private void onInitializeMapView(String mapName, String viewName, boolean force) {
+		ObjectRelation.addRelation(this, mapName, viewName);
 		if(!mDisableEulaDialog && !GlobalSettings.isAcceptedEULA(this)){
 			showDialog(DIALOG_EULA);
 			return;
@@ -1002,6 +1024,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		mModelFileName = mScheme.owner.fileSystemName;
 		mMapViewName = view.systemName;
 		saveDefaultMapName();
+		ObjectRelation.addRelation(this, model, view);
 	}
 
 	private void hideNavigationControls() {
@@ -1037,6 +1060,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 		protected Void doInBackground(Locale... params) {
 			mModel.setLocale(params[0]);
 			mVectorMapView.setScheme(mScheme);
+			ObjectRelation.addRelation(this, params);
 			return null;
 		}
 
@@ -1045,6 +1069,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			mVectorMapView.setSchemeSelection(mNavigationStations, mNavigationSegments, mNavigationTransfers);
 			mVectorMapView.postInvalidate();
 			super.onPostExecute(result);
+			ObjectRelation.addRelation(this, result);
 		}
 	}
 
@@ -1117,6 +1142,8 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 			double latitude = 0, longitude = 0;
 			latitude = location.getLatitude();
 			longitude = location.getLongitude();
+			
+			ObjectRelation.addRelation(this, args);
 
 			final Model model = mModel; 
 			final float[] distances = new float[3];
@@ -1166,6 +1193,7 @@ public class MapViewActivity extends Activity implements OnClickListener, OnDism
 				Toast.makeText(MapViewActivity.this, R.string.msg_location_unknown, Toast.LENGTH_SHORT).show();
 			}
 			super.onPostExecute(view);
+			ObjectRelation.addRelation(this, view);
 		}
 	}
 

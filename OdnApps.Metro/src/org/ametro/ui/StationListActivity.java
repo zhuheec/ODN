@@ -31,6 +31,7 @@ import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
 import org.ametro.ui.adapters.StationListAdapter;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -66,6 +67,7 @@ public class StationListActivity extends ListActivity {
 	private class LineComparator implements Comparator<StationView>
 	{
 		public int compare(StationView left, StationView right) {
+			ObjectRelation.addRelation(this, left, right);
 			int lineCompare = StringUtil.COLLATOR.compare( mMap.lines[left.lineViewId].getName(), mMap.lines[right.lineViewId].getName());
 			return (lineCompare!=0) ? lineCompare : StringUtil.COLLATOR.compare(left.getName(),right.getName()); 
 		}
@@ -74,6 +76,7 @@ public class StationListActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MAIN_MENU_BY_NAME, 0, R.string.menu_sort_by_name).setIcon(android.R.drawable.ic_menu_sort_alphabetically);
 		menu.add(0, MAIN_MENU_BY_LINE, 1, R.string.menu_sort_by_line).setIcon(android.R.drawable.ic_menu_sort_by_size);
+		ObjectRelation.addRelation(this, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
@@ -86,6 +89,7 @@ public class StationListActivity extends ListActivity {
 	}
 	
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_BY_NAME:
 			updateSortOrder(true);
@@ -110,6 +114,7 @@ public class StationListActivity extends ListActivity {
 		mMap = MapViewActivity.Instance.getMapView();
 		mStations = mMap.getStationList(false);
 		updateSortOrder(mSortByName);
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 	
 	protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -119,6 +124,7 @@ public class StationListActivity extends ListActivity {
 		setResult(RESULT_OK, data);
 		finish();
 		super.onListItemClick(l, v, position, id);
+		ObjectRelation.addRelation(this, l, v);
 	}
 	
 	private void updateSortOrder(boolean byName){

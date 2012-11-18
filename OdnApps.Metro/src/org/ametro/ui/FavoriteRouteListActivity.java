@@ -26,6 +26,7 @@ import static org.ametro.app.Constants.STATION_TO_ID;
 import org.ametro.R;
 import org.ametro.model.SchemeView;
 import org.ametro.ui.adapters.FavoriteRoutesListAdapter;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -83,9 +84,11 @@ public class FavoriteRouteListActivity extends Activity implements OnClickListen
 		
 		onBindData();
 		hideDeletePanel();
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		if(keyCode == KeyEvent.KEYCODE_BACK){
 			if(mDeletePanelVisible){
 				hideDeletePanel();
@@ -97,10 +100,12 @@ public class FavoriteRouteListActivity extends Activity implements OnClickListen
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REMOVE, 0, R.string.menu_remove).setIcon(android.R.drawable.ic_menu_delete);
+		ObjectRelation.addRelation(this, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch(item.getItemId()){
 			case MENU_REMOVE:
 				showDeletePanel();
@@ -111,6 +116,7 @@ public class FavoriteRouteListActivity extends Activity implements OnClickListen
 	
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(MENU_REMOVE).setVisible(!mDeletePanelVisible);
+		ObjectRelation.addRelation(this, menu);
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
@@ -118,9 +124,11 @@ public class FavoriteRouteListActivity extends Activity implements OnClickListen
 		menu.add(ContextMenu.NONE, CONTEXT_MENU_SELECT, CONTEXT_MENU_SELECT, R.string.menu_select);
 		menu.add(ContextMenu.NONE, CONTEXT_MENU_REMOVE, CONTEXT_MENU_REMOVE, R.string.menu_remove);
 		super.onCreateContextMenu(menu, v, menuInfo);
+		ObjectRelation.addRelation(this, menu, v, menuInfo);
 	}
 	
 	public boolean onContextItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch(item.getItemId()){
 		case CONTEXT_MENU_SELECT:
 			onSelect((int)mList.getSelectedItemId());
@@ -165,6 +173,7 @@ public class FavoriteRouteListActivity extends Activity implements OnClickListen
 		}else{
 			mAdapter.toggleCheckbox(position);
 		}
+		ObjectRelation.addRelation(this, adapter, view);
 	}
 
 	private void showDeletePanel(){
@@ -205,6 +214,7 @@ public class FavoriteRouteListActivity extends Activity implements OnClickListen
 			}
 			onBindData();
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 	
 }

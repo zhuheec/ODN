@@ -39,6 +39,7 @@ import org.ametro.directory.CatalogMapSuggestion;
 import org.ametro.model.TransportType;
 import org.ametro.util.BitmapUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -66,6 +67,7 @@ public class TaskFailedList extends ListActivity {
 		final ApplicationEx app = ((ApplicationEx)getApplicationContext());
 		mStorage = app.getCatalogStorage();
 		mTasks = mStorage.takeFailedTaskList();
+		ObjectRelation.addRelation(this, savedInstanceState);
 		if(mTasks==null || mTasks.size()==0){
 			finish();
 			return;
@@ -125,6 +127,7 @@ public class TaskFailedList extends ListActivity {
 		});
 		AlertDialog alertDialog = builder.create();
 		alertDialog.show();
+		ObjectRelation.addRelation(this, l, v);
 	};
 
 	private static class FailedTaskListAdapter extends BaseAdapter{

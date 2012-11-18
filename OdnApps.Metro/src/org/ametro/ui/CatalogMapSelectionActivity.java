@@ -36,6 +36,7 @@ import org.ametro.catalog.storage.CatalogStorage;
 import org.ametro.catalog.storage.CatalogStorageStateProvider;
 import org.ametro.ui.adapters.CheckedCatalogAdapter;
 import org.ametro.util.CollectionUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -95,10 +96,12 @@ public class CatalogMapSelectionActivity extends Activity implements ICatalogSta
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN_MENU_SELECT_ALL, 1, R.string.menu_select_all).setIcon(android.R.drawable.ic_menu_agenda);
 		menu.add(0, MAIN_MENU_SELECT_NONE, 2, R.string.menu_select_none).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_SELECT_ALL:
 			setCheckAll();
@@ -115,6 +118,7 @@ public class CatalogMapSelectionActivity extends Activity implements ICatalogSta
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		ObjectRelation.addRelation(this, savedInstanceState);
 		if(!extractData()){
 			invokeFinish();
 			return;
@@ -252,6 +256,7 @@ public class CatalogMapSelectionActivity extends Activity implements ICatalogSta
 	}
 
 	public int getCatalogState(CatalogMap local, CatalogMap remote) {
+		ObjectRelation.addRelation(this, local, remote);
 		if(mDiffMode == CatalogMapPair.DIFF_MODE_LOCAL){
 			return mStorageState.getLocalCatalogState(local, remote);
 		}else{
@@ -282,6 +287,7 @@ public class CatalogMapSelectionActivity extends Activity implements ICatalogSta
 		}else  if(v == mCancelButton){
 			invokeFinish();
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 	
 }

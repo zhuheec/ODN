@@ -41,6 +41,7 @@ import org.ametro.catalog.storage.tasks.UpdateMapTask;
 import org.ametro.directory.CatalogMapSuggestion;
 import org.ametro.model.TransportType;
 import org.ametro.util.BitmapUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -73,10 +74,12 @@ public class TaskQueuedList extends ListActivity implements ICatalogStorageListe
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MAIN_MENU_CANCEL_ALL, 0, R.string.menu_cancel_all).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 	
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_CANCEL_ALL:
 			mStorage.cancelAllTasks();
@@ -94,6 +97,7 @@ public class TaskQueuedList extends ListActivity implements ICatalogStorageListe
 		mCatalogNames = res.getStringArray(R.array.catalog_names);
 		mLoadingText = getString(R.string.msg_loading);
 		mStorage = app.getCatalogStorage();
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 	
 	protected void onResume() {
@@ -278,22 +282,27 @@ public class TaskQueuedList extends ListActivity implements ICatalogStorageListe
 
 	public void onCatalogFailed(int catalogId, String message) {
 		mUIDispatcher.post(this);
+		ObjectRelation.addRelation(this, message);
 	}
 
 	public void onCatalogLoaded(int catalogId, Catalog catalog) {
 		mUIDispatcher.post(this);
+		ObjectRelation.addRelation(this, catalog);
 	}
 
 	public void onCatalogMapChanged(String systemName) {
 		mUIDispatcher.post(this);
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	public void onCatalogMapDownloadDone(String systemName) {
 		mUIDispatcher.post(this);
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	public void onCatalogMapDownloadFailed(String systemName, Throwable ex) {
 		mUIDispatcher.post(this);
+		ObjectRelation.addRelation(this, systemName, ex);
 	}
 
 	public void onCatalogMapDownloadProgress(String systemName, int progress, int total) {
@@ -305,6 +314,7 @@ public class TaskQueuedList extends ListActivity implements ICatalogStorageListe
 
 	public void onCatalogMapImportFailed(String systemName, Throwable e) {
 		mUIDispatcher.post(this);
+		ObjectRelation.addRelation(this, systemName, e);
 	}
 
 	public void onCatalogMapImportProgress(String systemName, int progress, int total) {

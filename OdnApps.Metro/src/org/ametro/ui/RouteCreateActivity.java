@@ -35,6 +35,7 @@ import org.ametro.model.route.RouteContainer;
 import org.ametro.model.route.RouteParameters;
 import org.ametro.ui.adapters.StationListAdapter;
 import org.ametro.util.CollectionUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -98,6 +99,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
         menu.add(0, MAIN_MENU_FAVORITES, Menu.NONE, R.string.menu_favorites).setIcon(R.drawable.icon_btn_star);
         menu.add(0, MAIN_MENU_TRANSPORTS, Menu.NONE, R.string.menu_transports).setIcon(android.R.drawable.ic_menu_agenda);
         menu.add(0, MAIN_MENU_TIME, Menu.NONE, R.string.menu_time).setIcon(android.R.drawable.ic_menu_today);
+		ObjectRelation.addRelation(this, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
@@ -109,6 +111,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 	}
 	
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
         switch (item.getItemId()) {
         case MAIN_MENU_SWAP:
             swapStations();
@@ -187,6 +190,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 				mFromText.setText( StationListAdapter.getStationName(mMapView, station) );
 			}
 		}
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onStop() {
@@ -232,6 +236,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+		ObjectRelation.addRelation(this, data);
 	}
 	
 	public void onClick(View v) {
@@ -259,6 +264,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 		if (v == mFavoritesButton){
    			startActivityForResult(new Intent(this,FavoriteRouteListActivity.class), REQUEST_ROUTE);
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 
 	private void showSelectTimeDialog() {
@@ -313,6 +319,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 			mCreateRouteTask = new CreateRouteTask();
 			mCreateRouteTask.execute(from.stationId, to.stationId);
 		}
+		ObjectRelation.addRelation(this, from, to);
 	}
 
 	private void swapStations() {
@@ -322,6 +329,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			finishActivity();
 			return true;
@@ -333,6 +341,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 		if (anim == mPanelAnimation && mExitPending) {
 			finish();
 		}
+		ObjectRelation.addRelation(this, anim);
 	}
 
 	public void onAnimationRepeat(Animation anim) {
@@ -400,6 +409,7 @@ public class RouteCreateActivity extends Activity implements OnClickListener,
 			StationView station = mMapView.getStationViewByDisplayName(lineName, stationName);
 			return station;
 		}
+		ObjectRelation.addRelation(this, text);
 		return null;
 	}
 

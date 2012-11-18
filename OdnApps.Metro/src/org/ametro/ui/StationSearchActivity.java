@@ -29,6 +29,7 @@ import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
 import org.ametro.ui.adapters.StationListAdapter;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.ListActivity;
 import android.app.SearchManager;
@@ -45,6 +46,7 @@ public class StationSearchActivity extends ListActivity {
 	private static class StationSortComparator implements Comparator<StationView>
 	{
 		public int compare(StationView first, StationView second) {
+			ObjectRelation.addRelation(this, first, second);
 			return StringUtil.COLLATOR.compare(first.getName(),second.getName());
 		}
 	}
@@ -53,6 +55,7 @@ public class StationSearchActivity extends ListActivity {
 		MapViewActivity.Instance.setNavigationStations(mStationList);
 		MapViewActivity.Instance.setCurrentStation(mStationList.get(position));
 		finish();
+		ObjectRelation.addRelation(this, l, v);
 	}
 	
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,7 @@ public class StationSearchActivity extends ListActivity {
 				this.setSelection(mStationList.indexOf(selected));
 			}
 		}
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	private void bindData() {
@@ -117,6 +121,7 @@ public class StationSearchActivity extends ListActivity {
 		}			
 		mStationList = stations;
 		Collections.sort(mStationList, new StationSortComparator());
+		ObjectRelation.addRelation(this, searchKeywords);
 		return map;
 	}
 }

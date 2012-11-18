@@ -55,6 +55,7 @@ import org.ametro.directory.CityDirectory;
 import org.ametro.ui.adapters.CatalogExpandableAdapter;
 import org.ametro.ui.dialog.AboutDialog;
 import org.ametro.ui.dialog.LocationSearchDialog;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -207,11 +208,13 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 			}
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
+		ObjectRelation.addRelation(this, menu, v, menuInfo);
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
 		ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
 		int type = ExpandableListView.getPackedPositionType(info.packedPosition);
+		ObjectRelation.addRelation(this, item);
 		if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
 			int group = ExpandableListView.getPackedPositionGroup(info.packedPosition);
 			int child = ExpandableListView.getPackedPositionChild(info.packedPosition);
@@ -255,6 +258,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 		menu.add(0, MAIN_MENU_LOCATION, Menu.NONE, R.string.menu_location).setIcon(android.R.drawable.ic_menu_mylocation);
 		menu.add(0, MAIN_MENU_SETTINGS, 999, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences);
 		menu.add(0, MAIN_MENU_ABOUT, 1000, R.string.menu_about).setIcon(android.R.drawable.ic_menu_help);
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 
@@ -266,6 +270,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_SEARCH:
 			onSearchRequested();
@@ -287,6 +292,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ObjectRelation.addRelation(this, data);
 		switch (requestCode) {
 		case REQUEST_SDCARD:
 			if(resultCode != RESULT_OK){
@@ -328,6 +334,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		if(keyCode == KeyEvent.KEYCODE_BACK){
 			if(mActionBar!=null && mActionBar.getVisibility() == View.VISIBLE){
 				setActionBarVisibility(false);
@@ -347,6 +354,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 		mStorage = ((ApplicationEx)getApplicationContext()).getCatalogStorage();
 		mStorageState = new CatalogStorageStateProvider(mStorage);
 		setWaitView();
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onResume() {
@@ -427,6 +435,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 				Log.i(Constants.LOG_TAG_MAIN, "hide IME");
 			}
 		}
+		ObjectRelation.addRelation(this, hasFocus);
 	}
 	
 	private void onCatalogsUpdated(boolean refresh) {
@@ -456,6 +465,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 			mErrorMessage = message;
 			mUIEventDispacher.post(mCatalogError);
 		}
+		ObjectRelation.addRelation(this, message);
 	}
 
 	public void onCatalogLoaded(int catalogId, Catalog catalog) {
@@ -466,30 +476,35 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 			mCatalogLoadedEvents.offer(event);
 		}
 		mUIEventDispacher.post(mHandleCatalogLoadedEvents);
+		ObjectRelation.addRelation(this, catalog);
 	}
 	
 	public void onCatalogMapChanged(String systemName) {
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 	
 	public void onCatalogMapDownloadDone(String systemName) {
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	public void onCatalogMapImportDone(String systemName) {
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 	
 	public void onCatalogMapDownloadFailed(String systemName, Throwable ex){
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName, ex);
 	}
 	
 	public void onCatalogMapImportFailed(String systemName, Throwable ex){
@@ -506,6 +521,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 			mMessage = message;
 			mUIEventDispacher.post(mUpdateProgress);
 		}
+		ObjectRelation.addRelation(this, message);
 	}
 	
 	public void onCatalogMapDownloadProgress(String systemName, int progress, int total) {
@@ -570,6 +586,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 				});
 			}
 		}
+		ObjectRelation.addRelation(this, location);
 	}
 	
 	protected void onLocationSearchCanceled() {}
@@ -585,6 +602,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 	}
 
 	public boolean onCatalogMapClick(CatalogMap local, CatalogMap remote, int state) {
+		ObjectRelation.addRelation(this, local, remote);
 		switch(state){
 		case OFFLINE:
 		case INSTALLED:
@@ -627,12 +645,14 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 			setResult(RESULT_OK, viewIntent);
 			finish();
 		}
+		ObjectRelation.addRelation(this, local);
 	}
 
 	public void onClick(View v) {
 		if(v == mActionBarCancelButton){
 			setActionBarVisibility(false);
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 
 	
@@ -765,6 +785,7 @@ public abstract class BaseCatalogExpandableActivity extends Activity implements 
 		       });
 		AlertDialog alertDialog = builder.create();
 		alertDialog.show();
+		ObjectRelation.addRelation(this, map);
 	}
 
 	private void showDeleteImportMapDialog(final CatalogMap map) {
