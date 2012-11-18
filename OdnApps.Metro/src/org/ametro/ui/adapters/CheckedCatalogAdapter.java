@@ -35,6 +35,7 @@ import org.ametro.catalog.CatalogMapPair.CatalogMapPairCityComparator;
 import org.ametro.catalog.CatalogMapPair.CatalogMapPairCountryComparator;
 import org.ametro.model.TransportType;
 import org.ametro.util.BitmapUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -103,6 +104,7 @@ public class CheckedCatalogAdapter extends BaseAdapter {
 		mTransportTypes = TransportType.getIconsMap(context);
 		mObjects = objects;
 		bindData();
+		ObjectRelation.addRelation(this, context, owner, objects, statusProvider);
     }
 
     public boolean hasStableIds() {
@@ -210,7 +212,7 @@ public class CheckedCatalogAdapter extends BaseAdapter {
 			transports = transports >> 1;
 			transportId = transportId << 1;
 		}
-		
+		ObjectRelation.addRelation(this, convertView, g);
 		return convertView;
 	}
 

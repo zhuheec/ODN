@@ -29,6 +29,7 @@ import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
 import org.ametro.util.DateUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -56,7 +57,7 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 		protected FilterResults performFiltering(CharSequence constraint) {
 			final StationView[] allStations = mStations;
 			final Long[] allDelays = mDelays;
-
+			ObjectRelation.addRelation(this, constraint);
 			if(constraint==null || constraint.length() == 0){
 				ResultContainer container = new ResultContainer();
 				container.Stations = allStations;
@@ -121,8 +122,9 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
             } else {
                 notifyDataSetInvalidated();
             }
+    		ObjectRelation.addRelation(this, container, results);
 		}
-		
+			
 	}
 	
 	public static class ListItemWrapper
@@ -142,11 +144,13 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 			LineImage = (ImageView)view.findViewById(R.id.line_image);
 			Delay = (TextView)view.findViewById(R.id.delay);
 			view.setTag(this);
+			ObjectRelation.addRelation(this, view);
 		}
 	}	
 
 	public StationListAdapter(Context activity, ArrayList<StationView> stations,SchemeView map){
 		this(activity, stations,null,map);
+		ObjectRelation.addRelation(this, activity, stations, map);
 	}
 
 	public StationListAdapter(Context context, ArrayList<StationView> stations, ArrayList<Long> delays, SchemeView map){
@@ -154,10 +158,12 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 			, (StationView[]) stations.toArray(new StationView[stations.size()])
 			, delays==null ? null : (Long[]) delays.toArray(new Long[delays.size()])
 			, map);
+		ObjectRelation.addRelation(this, context, stations, delays, map);
 	}
 
 	public StationListAdapter(Context context, StationView[] stations, SchemeView map){
 		this(context, stations, null, map);
+		ObjectRelation.addRelation(this, context, stations, map);
 	}
 
 	public StationListAdapter(Context context, StationView[] stations, Long[] delays, SchemeView map){
@@ -171,6 +177,7 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 		mFilteredStations = mStations;
 		mFilteredDelays = mDelays;
 		mMapView = map;
+		ObjectRelation.addRelation(this, context, stations, delays, map);
 	}
 	
 	protected final SchemeView mMapView;
@@ -192,6 +199,7 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 	}
 
 	public void setTextColor(Integer color){
+		ObjectRelation.addRelation(this, color);
 		mTextColor = color;
 	}
 	
@@ -226,6 +234,7 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 			wrapper = (ListItemWrapper)view.getTag();
 		}
 		setListItemView(wrapper, position);
+		ObjectRelation.addRelation(this, convertView, parent);
 		return view;		
 	}
 
@@ -248,6 +257,8 @@ public class StationListAdapter extends BaseAdapter implements Filterable {
 		
 		GradientDrawable lineDrawable = (GradientDrawable)wrapper.LineImage.getDrawable();
 		lineDrawable.setColor(0xFF000000 | line.lineColor);
+		
+		ObjectRelation.addRelation(this, wrapper);
 		
 		//wrapper.StationImage.setColorFilter(0xFF000000 | line.lineColor, Mode.SRC_ATOP);
 		//wrapper.LineImage.setColorFilter(0xFF000000 | line.lineColor, Mode.SRC_ATOP);

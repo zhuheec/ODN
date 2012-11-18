@@ -27,6 +27,7 @@ import org.ametro.R;
 import org.ametro.model.LineView;
 import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
@@ -49,6 +50,7 @@ public class LinesListAdapter extends BaseAdapter {
 			StationImage = (ImageView)view.findViewById(R.id.station_image);
 			LineImage = (ImageView)view.findViewById(R.id.line_image);
 			view.setTag(this);
+			ObjectRelation.addRelation(this, view);
 		}
 	}	
 
@@ -86,6 +88,7 @@ public class LinesListAdapter extends BaseAdapter {
 		mContext = context;
 		mMapView = map;
 		mLines = createListItems(map);
+		ObjectRelation.addRelation(this, context, map);
 	}
 	
 	private ListItem[] createListItems(SchemeView map) {
@@ -97,6 +100,7 @@ public class LinesListAdapter extends BaseAdapter {
 			}
 		}
 		Collections.sort(items);
+		ObjectRelation.addRelation(this, map);
 		return (ListItem[]) items.toArray(new ListItem[items.size()]);
 	}
 
@@ -130,6 +134,7 @@ public class LinesListAdapter extends BaseAdapter {
 			wrapper = (ListItemWrapper)view.getTag();
 		}
 		setListItemView(wrapper, position);
+		ObjectRelation.addRelation(this, convertView, parent);
 		return view;		
 	}
 
@@ -142,6 +147,7 @@ public class LinesListAdapter extends BaseAdapter {
 		
 		GradientDrawable lineDrawable = (GradientDrawable)wrapper.LineImage.getDrawable();
 		lineDrawable.setColor(0xFF000000 | line.getColor());
+		ObjectRelation.addRelation(this, wrapper);
 	}
 	
 }

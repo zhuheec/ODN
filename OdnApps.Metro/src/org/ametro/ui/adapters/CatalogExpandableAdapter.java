@@ -38,6 +38,7 @@ import org.ametro.directory.CityDirectory;
 import org.ametro.model.TransportType;
 import org.ametro.util.BitmapUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -101,6 +102,7 @@ public class CatalogExpandableAdapter extends BaseExpandableListAdapter implemen
     public void setLanguage(String languageCode)
     {
     	mLanguageCode = languageCode;
+		ObjectRelation.addRelation(this, languageCode);
     }
     
 	public void updateData(Catalog local, Catalog remote)
@@ -115,6 +117,7 @@ public class CatalogExpandableAdapter extends BaseExpandableListAdapter implemen
         }
 		bindData();
 		notifyDataSetChanged();
+		ObjectRelation.addRelation(this, local, remote);
 	}
     
     public CatalogExpandableAdapter(Context context, Catalog local, Catalog remote, int mode, int colorsArray, ICatalogStateProvider statusProvider) {
@@ -130,6 +133,7 @@ public class CatalogExpandableAdapter extends BaseExpandableListAdapter implemen
 		
     	mObjects = CatalogMapPair.diff(local, remote, mode);
         bindData();
+		ObjectRelation.addRelation(this, context, local, remote, statusProvider);
     }
 
     public Object getChild(int groupPosition, int childPosition) {
@@ -224,7 +228,7 @@ public class CatalogExpandableAdapter extends BaseExpandableListAdapter implemen
 			transports = transports >> 1;
 			transportId = transportId << 1;
 		}
-		
+		ObjectRelation.addRelation(this, convertView, parent);
 		return convertView;
 		
     }
@@ -259,6 +263,7 @@ public class CatalogExpandableAdapter extends BaseExpandableListAdapter implemen
 			holder = (GroupViewHolder) convertView.getTag();
 		}    	
 		holder.mCountry.setText(mCountries[groupPosition].Name);
+		ObjectRelation.addRelation(this, convertView, parent);
 		return convertView;
     }
 
@@ -402,6 +407,7 @@ public class CatalogExpandableAdapter extends BaseExpandableListAdapter implemen
 	}
 
 	public long findItemPosition(CityDirectory.Entity city) {
+		ObjectRelation.addRelation(this, city);
 		if(city == null || mObjects == null) return -1;
 		final String code = mLanguageCode;
 		final String cityName = city.getName(code);
