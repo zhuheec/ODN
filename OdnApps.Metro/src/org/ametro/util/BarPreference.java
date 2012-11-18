@@ -1,5 +1,7 @@
 package org.ametro.util;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.content.Context;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
@@ -25,6 +27,7 @@ public class BarPreference extends DialogPreference implements SeekBar.OnSeekBar
 		mPostfix = attrs.getAttributeValue(androidns, "postfix");
 		mDefault = attrs.getAttributeIntValue(androidns, "defaultValue", 0);
 		mMax = attrs.getAttributeIntValue(androidns, "max", 100);
+		ObjectRelation.addRelation(this, context, attrs);
 	}
 
 	public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
@@ -34,6 +37,7 @@ public class BarPreference extends DialogPreference implements SeekBar.OnSeekBar
 			persistInt(value);
 		}
 		callChangeListener(new Integer(value));
+		ObjectRelation.addRelation(this, seek);
 	}
 
 	public void onStartTrackingTouch(SeekBar seek) {
@@ -74,6 +78,7 @@ public class BarPreference extends DialogPreference implements SeekBar.OnSeekBar
 		super.onBindDialogView(v);
 		mBar.setMax(mMax);
 		mBar.setProgress(mValue);
+		ObjectRelation.addRelation(this, v);
 	}
 
 	protected void onSetInitialValue(boolean restore, Object defaultValue) {
@@ -82,5 +87,6 @@ public class BarPreference extends DialogPreference implements SeekBar.OnSeekBar
 			mValue = shouldPersist() ? getPersistedInt(mDefault) : 0;
 		else
 			mValue = (Integer) defaultValue;
+		ObjectRelation.addRelation(this, defaultValue);
 	}		
 }

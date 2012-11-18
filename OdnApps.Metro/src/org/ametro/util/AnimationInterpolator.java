@@ -1,5 +1,7 @@
 package org.ametro.util;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.graphics.PointF;
 
 public class AnimationInterpolator {
@@ -37,6 +39,7 @@ public class AnimationInterpolator {
 			this.mNowPoint.set(startPoint);
 			this.mMode |= SCROLL;
 		}
+		ObjectRelation.addRelation(this, startPoint, endPoint, startScale, endScale);
 	}
 
 	public void begin(float startScale, float endScale, long time){
@@ -45,6 +48,7 @@ public class AnimationInterpolator {
 	
 	public void begin(PointF startPoint, PointF endPoint, long time){
 		begin(startPoint, endPoint, null, null, time);
+		ObjectRelation.addRelation(this, startPoint, endPoint);
 	}
 	
 	public boolean more(){
