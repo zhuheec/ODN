@@ -1,6 +1,7 @@
 package org.ametro.ui.controllers;
 
 import org.ametro.util.AnimationInterpolator;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -100,6 +101,7 @@ public class MultiTouchController {
 		touchSlopSquare = slop * slop;
 		density = context.getResources().getDisplayMetrics().density;
 		velocityTracker = null;
+		ObjectRelation.addRelation(this, context, multiTouchListener);
 	}
 
 	/** Map point from model to screen coordinates **/
@@ -110,6 +112,7 @@ public class MultiTouchController {
 		matrix.mapPoints(pts);
 		point.x = pts[0];
 		point.y = pts[1];
+		ObjectRelation.addRelation(this, point);
 	}
 	
 	/** Map point from screen to model coordinates **/
@@ -121,17 +124,20 @@ public class MultiTouchController {
 		invertedMatrix.mapPoints(pts);
 		point.x = pts[0];
 		point.y = pts[1];
+		ObjectRelation.addRelation(this, point);
 	}
 
 	/** Map rectangle from model to screen coordinates **/
 	public void mapRect(RectF rect){
 		matrix.mapRect(rect);
+		ObjectRelation.addRelation(this, rect);
 	}
 	
 	/** Map rectangle from screen to model coordinates **/
 	public void unmapRect(RectF rect){
 		matrix.invert(invertedMatrix);
 		invertedMatrix.mapRect(rect);
+		ObjectRelation.addRelation(this, rect);
 	}
 
 	/** Setup view rect and content size 
@@ -149,9 +155,11 @@ public class MultiTouchController {
 		adjustScale();
 		adjustPan();
 		listener.setPositionAndScaleMatrix(matrix);
+		ObjectRelation.addRelation(this, newDisplayRect);
 	}
 	
 	public boolean onMultiTouchEvent(MotionEvent rawEvent) {
+		ObjectRelation.addRelation(this, rawEvent);
 		if(mode == MODE_ANIMATION){
 			return false;
 		}
@@ -191,6 +199,7 @@ public class MultiTouchController {
 		savedMatrix.set(matrix);
 		touchStartPoint.set(event.getX(), event.getY());
 		touchStartTime = event.getEventTime();
+		ObjectRelation.addRelation(this, event);
 		return true;
 	}
 	
@@ -207,10 +216,12 @@ public class MultiTouchController {
 			zoomCenter.set(x / 2, y / 2);
 			setControllerMode( MODE_ZOOM );
 		}			
+		ObjectRelation.addRelation(this, event);
 		return true;
 	}
 	
 	private boolean doActionMove(MotionEventWrapper event){
+		ObjectRelation.addRelation(this, event);
 		if (mode == MODE_NONE || mode == MODE_LONGPRESS_START) {
 			// no dragging during scroll zoom animation or while long press is not released
 			return false; 
@@ -259,7 +270,7 @@ public class MultiTouchController {
 	}
 	
 	private boolean doActionUp(MotionEventWrapper event){
-		
+		ObjectRelation.addRelation(this, event);
 		switch (mode) {
 		case MODE_INIT: // tap
 		case MODE_SHORTPRESS_START:
@@ -317,6 +328,7 @@ public class MultiTouchController {
         privateHandler.removeMessages(MSG_SWITCH_TO_SHORTPRESS);
         privateHandler.removeMessages(MSG_SWITCH_TO_LONGPRESS);
 		setControllerMode( MODE_NONE );
+		ObjectRelation.addRelation(this, event);
 		return true;
 	}
 	
@@ -388,6 +400,7 @@ public class MultiTouchController {
 	private float distance(MotionEventWrapper event) {
 		float x = event.getX(0) - event.getX(1);
 		float y = event.getY(0) - event.getY(1);
+		ObjectRelation.addRelation(this, event);
 		return FloatMath.sqrt(x * x + y * y);
 	}
 
@@ -460,6 +473,7 @@ public class MultiTouchController {
 		if(position!=null){
 			position.set(-matrixValues[Matrix.MTRANS_X]/scale, -matrixValues[Matrix.MTRANS_Y]/scale);
 		}
+		ObjectRelation.addRelation(this, position);
 		return scale;
 	}
 	
@@ -469,6 +483,7 @@ public class MultiTouchController {
 		adjustScale();
 		adjustPan();
 		listener.setPositionAndScaleMatrix(matrix);
+		ObjectRelation.addRelation(this, position);
 	}
 
 	public float getMaxScale() {
@@ -494,6 +509,7 @@ public class MultiTouchController {
 	
 	public void doScrollAnimation(PointF center){
 		doScrollAndZoomAnimation(center, null);
+		ObjectRelation.addRelation(this, center);
 	}
 	
 	public void doZoomAnimation(int scaleMode, PointF scaleCenter){
@@ -511,6 +527,7 @@ public class MultiTouchController {
 			}
 			doScrollAndZoomAnimation(scaleCenter, targetScale);
 		}
+		ObjectRelation.addRelation(this, scaleCenter);
 	}
 	
 	public void doScrollAndZoomAnimation(PointF center, Float scale){
@@ -527,6 +544,7 @@ public class MultiTouchController {
 			privateHandler.sendEmptyMessage(MSG_PROCESS_ANIMATION);
 			setControllerMode(MODE_ANIMATION);
 		}
+		ObjectRelation.addRelation(this, center, scale);
 	}
 
 	class PrivateHandler extends Handler {
@@ -568,6 +586,7 @@ public class MultiTouchController {
 				super.handleMessage(msg);
 				break;
 			}
+			ObjectRelation.addRelation(this, msg);
 		}
 	}
 

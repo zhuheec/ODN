@@ -1,5 +1,7 @@
 package org.ametro.ui.controllers;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -39,6 +41,7 @@ public class MotionEventWrapper {
 	
 	public MotionEventWrapper(MotionEvent event) {
 		this.event = event;
+		ObjectRelation.addRelation(this, event);
 	}
 
 	public static MotionEventWrapper create(MotionEvent event){

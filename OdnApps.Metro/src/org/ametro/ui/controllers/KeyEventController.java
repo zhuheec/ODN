@@ -1,5 +1,7 @@
 package org.ametro.ui.controllers;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -29,10 +31,12 @@ public class KeyEventController {
 	public KeyEventController(MultiTouchController controller) {
 		mEnabledVolumeZoom = true;
 		mController = controller;
+		ObjectRelation.addRelation(this, controller);
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		int mode = mController.getControllerMode();
+		ObjectRelation.addRelation(this, event);
         switch (keyCode) {
         case KeyEvent.KEYCODE_VOLUME_UP:
         	if(!mEnabledVolumeZoom){
@@ -83,6 +87,7 @@ public class KeyEventController {
 	}
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
         switch (keyCode) {
         case KeyEvent.KEYCODE_VOLUME_UP:
         	if(!mEnabledVolumeZoom){
@@ -105,6 +110,7 @@ public class KeyEventController {
     }
     
     public boolean onTrackballEvent(MotionEvent event) {
+		ObjectRelation.addRelation(this, event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
 	            float dx = event.getX() * event.getXPrecision() * mTrackballScrollSpeed;
