@@ -25,6 +25,7 @@ import org.ametro.app.ApplicationEx;
 import org.ametro.app.GlobalSettings;
 import org.ametro.catalog.storage.tasks.DownloadIconsTask;
 import org.ametro.util.FileUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -68,6 +69,7 @@ public class DownloadIconsDialog extends AlertDialog implements OnClickListener,
 		setButton(AlertDialog.BUTTON_POSITIVE, context.getText(android.R.string.yes), this);
 		setButton(AlertDialog.BUTTON_NEGATIVE, context.getText(android.R.string.no), this);
 		setOnCancelListener(this);
+		ObjectRelation.addRelation(this, context);
 
 	}
 
@@ -81,13 +83,14 @@ public class DownloadIconsDialog extends AlertDialog implements OnClickListener,
 			}
 			dialog.dismiss();
 		}
-
+		ObjectRelation.addRelation(this, dialog);
 	}
 
 	public void onCancel(DialogInterface dialog) {
 		if(mChangeSettingsEnabled){
 			GlobalSettings.setCountryIconsEnabled(getContext(), false);
 		}
+		ObjectRelation.addRelation(this, dialog);
 	}
 
 }

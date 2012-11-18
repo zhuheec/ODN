@@ -25,6 +25,7 @@ import org.ametro.app.ApplicationEx;
 import org.ametro.app.Constants;
 import org.ametro.app.GlobalSettings;
 import org.ametro.util.FileUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -73,6 +74,7 @@ public class EULADialog extends AlertDialog implements OnClickListener {
 		final ScrollView view= new ScrollView(context);
 		view.addView(message);
 		setView(view);
+		ObjectRelation.addRelation(this, context);
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
@@ -93,5 +95,6 @@ public class EULADialog extends AlertDialog implements OnClickListener {
             intent.setDataAndType(Uri.fromFile(Constants.EULA_FILE), "text/plain");
 			getContext().startActivity(intent);
 		}
+		ObjectRelation.addRelation(this, dialog);
 	}
 }

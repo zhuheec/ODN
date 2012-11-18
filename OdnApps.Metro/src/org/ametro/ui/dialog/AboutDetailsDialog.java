@@ -24,6 +24,7 @@ package org.ametro.ui.dialog;
 import org.ametro.R;
 import org.ametro.app.Constants;
 import org.ametro.util.FileUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -78,6 +79,7 @@ public class AboutDetailsDialog extends AlertDialog implements OnClickListener {
 		final ScrollView view= new ScrollView(context);
 		view.addView(message);
 		setView(view);
+		ObjectRelation.addRelation(this, context);
 	}
 
 	protected Spannable getContent() {
@@ -101,9 +103,11 @@ public class AboutDetailsDialog extends AlertDialog implements OnClickListener {
 		info = manager.getPackageInfo(context.getPackageName(), 0);
 		mVersionName = info.versionName;
 		mAppName = getContext().getString( info.applicationInfo.labelRes );
+		ObjectRelation.addRelation(this, context);
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
 		dismiss();
+		ObjectRelation.addRelation(this, dialog);
 	}
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.ametro.R;
 import org.ametro.app.Constants;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.content.Context;
@@ -74,6 +75,8 @@ public class LocationSearchDialog extends Activity implements LocationListener, 
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 		updateMode();
+		
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -86,6 +89,7 @@ public class LocationSearchDialog extends Activity implements LocationListener, 
 			break;
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+		ObjectRelation.addRelation(this, data);
 	}
 	
 	private void updateMode(){
@@ -124,6 +128,7 @@ public class LocationSearchDialog extends Activity implements LocationListener, 
 				finishWithResult();
 			}
 		}
+		ObjectRelation.addRelation(this, location);
 	}
 
 	private boolean isLocationProvidersEnabled() {
@@ -176,6 +181,8 @@ public class LocationSearchDialog extends Activity implements LocationListener, 
 		if(v == mSettingsButton){
 			startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQUEST_ENABLE_LOCATION_SERVICES); 
 		}
+		ObjectRelation.addRelation(this, v);
 	}
+	
 
 }
