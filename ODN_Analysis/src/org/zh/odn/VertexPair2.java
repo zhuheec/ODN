@@ -4,6 +4,9 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.zh.poly.Poly;
+import org.zh.poly.Term;
+import org.zh.poly.Variable;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -25,7 +28,7 @@ public class VertexPair2 {
 	private LinkedList<LinkedList<Vertex>> allPaths;
 	private Graph pathTree;
 	private int pathCount = 0;
-	private double startSelfVul = 1.0;
+	//private double startSelfVul = 1.0;
 	
 	
 	/**
@@ -42,8 +45,8 @@ public class VertexPair2 {
 		// set start vertex
 		this.startTag = startVertex.getId().toString();
 		// set self vulnerability of start vertex
-		startSelfVul = Double.parseDouble(startVertex.getProperty(OdnGraph.SELF_VUL_KEY).toString());
-		log.debug("[StartTag] has been set to ["+ startTag +"].");
+		//startSelfVul = Double.parseDouble(startVertex.getProperty(OdnGraph.SELF_VUL_KEY).toString());
+		//log.debug("[StartTag] has been set to ["+ startTag +"].");
 		
 		// set end vertex
 		this.endTag = endVertex.getId().toString();
@@ -185,6 +188,39 @@ public class VertexPair2 {
 			log.debug(output);
 		}
 		log.debug("Finished printing all [" + allPaths.size() + "] paths.");
+	}
+	
+	/**
+	 * Updated on Jan 24, 2013 by He Zhu
+	 * I really hope this is the last time to review this.
+	 */
+	public double getVulnerability() {
+		log.debug("Starting to calculate vul...");
+		double vul = 0;
+		for(int i = 0; i < allPaths.size(); i++) {
+			Poly poly = new Poly();
+			for(int j = 0; j <= i; j++) {
+				LinkedList<Vertex> path = allPaths.get(j);
+				Term term1 = new Term();
+				Term term2 = new Term();
+				for(int k = 0; k < path.size() - 1; k++) {
+					term2.addVar(Variable.getVariable(
+							"[" + path.get(k).getId().toString().split(":")[0] + "]"
+							+ OdnGraph.RELATION_CONNECTOR
+							+ path.get(k + 1).getId().toString().split(":")[0] + "]"));
+				}
+				
+				if(j == i) {
+					poly.addPoly(new Poly(term2));
+				} else {
+					term2.setCoefficient(-1);
+					poly.addPoly(new Poly(term1, term2));
+				}	
+			}
+			// accumulate the vul of each poly here
+			//vul += poly.getVul();
+		}
+		return vul;
 	}
 	
 	/**
