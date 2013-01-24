@@ -37,6 +37,7 @@ import org.ametro.directory.CityDirectory;
 import org.ametro.model.TransportType;
 import org.ametro.util.BitmapUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -95,6 +96,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
     public void setLanguage(String languageCode)
     {
     	mLanguageCode = languageCode;
+		ObjectRelation.addRelation(this, languageCode);
     }
     
 	public void updateLanguage() {
@@ -114,6 +116,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
         }
 		bindData();
 		notifyDataSetChanged();
+		ObjectRelation.addRelation(this, local, remote);
 	}
     
 	public void updateSort(int sortMode){
@@ -135,6 +138,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
 		mTransportTypes = TransportType.getIconsMap(context);
     	mObjects = CatalogMapPair.diff(local, remote, mode);
         bindData();
+		ObjectRelation.addRelation(this, context, local, remote, statusProvider);
     }
 
 	public static class ViewHolder {
@@ -193,7 +197,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
                 results.values = newValues;
                 results.count = newValues.size();
             }
-
+    		ObjectRelation.addRelation(this, prefix);
             return results;
         }
 
@@ -252,6 +256,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
 		        
 		    }
 		}
+		ObjectRelation.addRelation(this, prefix);
 		return newValues;
 	}
 	
@@ -326,7 +331,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
 			transports = transports >> 1;
 			transportId = transportId << 1;
 		}
-		
+		ObjectRelation.addRelation(this, convertView, g);
 		return convertView;
 	}
 
@@ -335,6 +340,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
 	}
 
 	public int findItemPosition(String systemMapName) {
+		ObjectRelation.addRelation(this, systemMapName);
 		if(systemMapName == null || mObjects == null) return -1;
 		int pos = 0;
 		for(CatalogMapPair item : mObjects){
@@ -351,6 +357,7 @@ public class CatalogAdapter extends BaseAdapter implements Filterable {
 		int pos = 0;
 		final String code = mLanguageCode;
 		final String cityName = city.getName(code);
+		ObjectRelation.addRelation(this, city);
 		for(CatalogMapPair item : mObjects){
 			if(item!=null &&  cityName.equalsIgnoreCase(item.getCity(code))){
 				return pos;

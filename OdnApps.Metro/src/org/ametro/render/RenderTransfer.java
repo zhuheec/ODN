@@ -26,6 +26,7 @@ import org.ametro.model.StationView;
 import org.ametro.model.TransferView;
 import org.ametro.model.TransportTransfer;
 import org.ametro.model.ext.ModelPoint;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -75,6 +76,7 @@ public class RenderTransfer extends RenderElement {
         final int bottom = Math.max(FromY, ToY) + radius;
 
         setProperties(RenderProgram.TYPE_TRANSFER + view.id, new Rect(left, top, right, bottom));
+		ObjectRelation.addRelation(this, map, view, transfer);
     }
 
     public void setAntiAlias(boolean enabled)
@@ -91,6 +93,7 @@ public class RenderTransfer extends RenderElement {
         canvas.drawCircle(FromX, FromY, Radius, Paint);
         canvas.drawCircle(ToX, ToY, Radius, Paint);
         canvas.drawLine(FromX, FromY, ToX, ToY, Paint);
+		ObjectRelation.addRelation(this, canvas);
     }
 
 }

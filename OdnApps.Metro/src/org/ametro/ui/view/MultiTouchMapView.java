@@ -17,6 +17,7 @@ import org.ametro.ui.controllers.MultiTouchController;
 import org.ametro.ui.controllers.ZoomController;
 import org.ametro.ui.controllers.MultiTouchController.MultiTouchListener;
 import org.ametro.util.MathUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -103,6 +104,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		mController = new MultiTouchController(getContext(),this);
 		mKeyEventController = new KeyEventController(mController);
 		mDblClickSlop = ViewConfiguration.get(context).getScaledDoubleTapSlop();
+		ObjectRelation.addRelation(this, context, scheme);
 	}
 	
 	public boolean setMapRenderer(int rendererType){
@@ -178,6 +180,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		}
 		canvas.restore();
 		super.onDraw(canvas);
+		ObjectRelation.addRelation(this, canvas);
 	}
 	
 	public Matrix getPositionAndScaleMatrix() {
@@ -190,6 +193,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		}
 		updateScrollBars(matrix);
 		mMapView.setMatrix(matrix);
+		ObjectRelation.addRelation(this, matrix);
 	}
 	
 	public void onTouchModeChanged(int mode) {
@@ -217,6 +221,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 			mPrivateHandler.removeCallbacks(performClickRunnable);
 			mPrivateHandler.postDelayed(performClickRunnable, ViewConfiguration.getDoubleTapTimeout());
 		}
+		ObjectRelation.addRelation(this, position);
 	}
 	
 	public void setZoomControlsEnabled(boolean enabled) {
@@ -233,6 +238,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 	
 	public void onPerformLongClick(PointF position) {
 		performLongClick();
+		ObjectRelation.addRelation(this, position);
 	}
 	
 	public PointF getTouchPoint() {
@@ -252,6 +258,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		mScheme = scheme;
 		mRenderProgram = new RenderProgram(mScheme);
 		mMapView.setScheme(mScheme, mRenderProgram);
+		ObjectRelation.addRelation(this, scheme);
 	}
 
 	public void setSchemeSelection(ArrayList<StationView> stations,
@@ -261,10 +268,12 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		mSegment = segments;
 		mTransfers = transfers;
 		mMapView.setSchemeSelection(stations,segments,transfers);
+		ObjectRelation.addRelation(this, stations, segments, transfers);
 	}
 	
 	public void setZoomControls(ZoomControls zoomControls) {
 		mZoomController = new ZoomController(getContext(), mController, zoomControls);
+		ObjectRelation.addRelation(this, zoomControls);
 	}	
 	
 	public float getCenterPositionAndScale(PointF position) {
@@ -272,6 +281,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		float width = getWidth() / scale;
 		float height = getHeight() / scale;
 		position.offset(width/2,height/2);
+		ObjectRelation.addRelation(this, position);
 		return scale;
 	}
 	
@@ -283,6 +293,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		}else{
 			mController.doScrollAndZoomAnimation(position, zoom);
 		}
+		ObjectRelation.addRelation(this, position, zoom);
 	}
 
 	public float getScale() {
@@ -297,18 +308,22 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 	}	
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		return mKeyEventController.onKeyDown(keyCode, event);
 	}
 	
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		return mKeyEventController.onKeyUp(keyCode, event);
 	}
 	
 	public boolean onTrackballEvent(MotionEvent event) {
+		ObjectRelation.addRelation(this, event);
 		return mKeyEventController.onTrackballEvent(event);
 	}
 	
 	public boolean onTouchEvent(MotionEvent event) {
+		ObjectRelation.addRelation(this, event);
 		return mController.onMultiTouchEvent(event);
 	}
 	
@@ -348,6 +363,7 @@ public class MultiTouchMapView extends ScrollView implements MultiTouchListener 
 		
 		
         awakeScrollBars();
+		ObjectRelation.addRelation(this, matrix);
 	}
 	
 	private void awakeScrollBars(){

@@ -28,6 +28,7 @@ import org.ametro.model.SegmentView;
 import org.ametro.model.StationView;
 import org.ametro.model.TransferView;
 import org.ametro.model.util.ModelUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Rect;
 
@@ -79,10 +80,12 @@ public class RouteView {
 			}
 		}
 		mRect = routeRect;
+		ObjectRelation.addRelation(this, map, route);
 	}
 
 	public long getStationDelay(StationView station){
 		Long delay = mStationDelays.get(station);
+		ObjectRelation.addRelation(this, station);
 		if(delay!=null){
 			return delay;
 		}

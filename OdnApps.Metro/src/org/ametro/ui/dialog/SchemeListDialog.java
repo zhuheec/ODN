@@ -29,6 +29,7 @@ import org.ametro.R;
 import org.ametro.model.SchemeView;
 import org.ametro.model.Model;
 import org.ametro.model.TransportType;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -131,6 +132,7 @@ public class SchemeListDialog implements OnClickListener, OnKeyListener {
 				
 			}
 		}
+		ObjectRelation.addRelation(this, model);
 		return list;
 	}
 	
@@ -154,6 +156,7 @@ public class SchemeListDialog implements OnClickListener, OnKeyListener {
 		mTexts = (String[]) names.toArray(new String[names.size()]);
 		mChildren = children;
 		mCurrent = data;
+		ObjectRelation.addRelation(this, data);
 	}
 	
 	public SchemeListDialog(final Context context, Model model, SchemeView current) {
@@ -161,6 +164,7 @@ public class SchemeListDialog implements OnClickListener, OnKeyListener {
 		mTransportLineNames = mContext.getResources().getStringArray(R.array.transport_type_lines);
 		mRoot = parseModel(model);
 		createDialog(mRoot);
+		ObjectRelation.addRelation(this, context, model, current);
 	}
 
 	private void createDialog(ArrayList<ListItem> data) {
@@ -172,6 +176,7 @@ public class SchemeListDialog implements OnClickListener, OnKeyListener {
 		builder.setItems(mTexts, this);
 		builder.setOnKeyListener(this);
 		mDialog = builder.create();
+		ObjectRelation.addRelation(this, data);
 	}
 
 	public void onMapViewSelected(String mapViewSystemName){
@@ -188,6 +193,7 @@ public class SchemeListDialog implements OnClickListener, OnKeyListener {
 		}else{
 			onMapViewSelected(mSystemNames[which]);
 		}
+		ObjectRelation.addRelation(this, dialog);
 	}
 
 	public void show() {
@@ -201,6 +207,7 @@ public class SchemeListDialog implements OnClickListener, OnKeyListener {
 			mDialog.show();
 			return true;
 		}
+		ObjectRelation.addRelation(this, dialog, event);
 		return false;
 	}
 	

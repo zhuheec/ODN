@@ -33,6 +33,7 @@ import org.ametro.util.CollectionUtil;
 import org.ametro.util.DateUtil;
 import org.ametro.util.FileUtil;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -102,6 +103,7 @@ public class SettingsActivity extends PreferenceActivity implements
 				R.string.pref_auto_update_networks_description,
 				R.array.pref_auto_update_networks_texts,
 				R.array.pref_auto_update_networks_values, null);
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	private void updateDescription(Preference pref, int prefId,
@@ -119,7 +121,7 @@ public class SettingsActivity extends PreferenceActivity implements
 			pref.setSummary((StringUtil.isNullOrEmpty(baseSummary) ? ""
 					: baseSummary + ", ") + names[index]);
 		}
-
+		ObjectRelation.addRelation(this, pref, value);
 	}
 
 	protected void onStop() {
@@ -147,6 +149,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		if (preference == mLicense) {
 			EULADialog.show(this);
 		}
+		ObjectRelation.addRelation(this, preference);
 		return false;
 	}
 
@@ -180,6 +183,7 @@ public class SettingsActivity extends PreferenceActivity implements
 					R.array.pref_auto_update_networks_texts,
 					R.array.pref_auto_update_networks_values, value);
 		}
+		ObjectRelation.addRelation(this, preference, newValue);
 		return true;
 	}
 

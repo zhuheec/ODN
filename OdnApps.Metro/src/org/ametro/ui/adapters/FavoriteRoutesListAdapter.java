@@ -26,6 +26,7 @@ import org.ametro.R;
 import org.ametro.model.LineView;
 import org.ametro.model.SchemeView;
 import org.ametro.model.StationView;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -61,6 +62,7 @@ public class FavoriteRoutesListAdapter extends BaseAdapter implements OnClickLis
 			ImageTo = (ImageView)view.findViewById(R.id.route_favorite_list_item_image_to);
 			Delete = (ImageView)view.findViewById(R.id.route_favorite_list_item_delete);
 			view.setTag(this);
+			ObjectRelation.addRelation(this, view);
 		}
 	}	
 
@@ -80,6 +82,8 @@ public class FavoriteRoutesListAdapter extends BaseAdapter implements OnClickLis
 		mMapView = map;
 		
 		mIsCheckboxesVisible = false;
+		
+		ObjectRelation.addRelation(this, activity, routes, map);
 	}
 	
 	protected static final int ICON_WIDTH = 20;
@@ -117,6 +121,7 @@ public class FavoriteRoutesListAdapter extends BaseAdapter implements OnClickLis
 
 	public void setTextColor(Integer color){
 		mTextColor = color;
+		ObjectRelation.addRelation(this, color);
 	}
 	
 	public static String getStationName(SchemeView map, StationView station){
@@ -174,6 +179,7 @@ public class FavoriteRoutesListAdapter extends BaseAdapter implements OnClickLis
 			wrapper.Delete.setBackgroundResource( mChecked[position] ? R.drawable.icon_delete : R.drawable.icon_delete_disabled );
 			wrapper.Delete.setTag(position);
 		}
+		ObjectRelation.addRelation(this, convertView, parent);
 		return view;		
 	}
 
@@ -188,12 +194,14 @@ public class FavoriteRoutesListAdapter extends BaseAdapter implements OnClickLis
 			dw = new BitmapDrawable(bmp);
 			mLineDrawabled.put(line, dw);
 		}
+		ObjectRelation.addRelation(this, line);
 		return dw;
 	}
 
 	public void onClick(View v) {
 		int position = (Integer)v.getTag();
 		toggleCheckbox(position);
+		ObjectRelation.addRelation(this, v);
 	}
 
 	public void toggleCheckbox(int position) {

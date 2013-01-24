@@ -55,6 +55,7 @@ import org.ametro.directory.CityDirectory;
 import org.ametro.ui.adapters.CatalogAdapter;
 import org.ametro.ui.dialog.AboutDialog;
 import org.ametro.ui.dialog.LocationSearchDialog;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -204,6 +205,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 			menu.add(0, CONTEXT_MENU_DELETE_PMZ, pos++, R.string.context_menu_delete_pmz);
 		}
 		super.onCreateContextMenu(menu, v, menuInfo);
+		ObjectRelation.addRelation(this, menu, v, menuInfo);
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
@@ -212,6 +214,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 		final CatalogMap local = pair.getLocal();
 		final CatalogMap remote = pair.getRemote();
 		final int state = getCatalogState(local, remote);
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case CONTEXT_MENU_SHOW_MAP:
 			if(state == INSTALLED || state == OFFLINE || state == UPDATE){
@@ -248,6 +251,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 		menu.add(0, MAIN_MENU_SORT, Menu.NONE, R.string.menu_sort).setIcon(android.R.drawable.ic_menu_sort_alphabetically);
 		menu.add(0, MAIN_MENU_SETTINGS, 999, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences);
 		menu.add(0, MAIN_MENU_ABOUT, 1000, R.string.menu_about).setIcon(android.R.drawable.ic_menu_help);
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 
@@ -284,6 +288,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ObjectRelation.addRelation(this, data);
 		switch (requestCode) {
 		case REQUEST_SDCARD:
 			if(resultCode != RESULT_OK){
@@ -325,6 +330,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ObjectRelation.addRelation(this, event);
 		if(keyCode == KeyEvent.KEYCODE_BACK){
 			if(mActionBar!=null && mActionBar.getVisibility() == View.VISIBLE){
 				setActionBarVisibility(false);
@@ -344,6 +350,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 		mStorage = ((ApplicationEx)getApplicationContext()).getCatalogStorage();
 		mStorageState = new CatalogStorageStateProvider(mStorage);
 		setWaitView();
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onResume() {
@@ -419,6 +426,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 				Log.i(Constants.LOG_TAG_MAIN, "hide IME");
 			}
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 	
 	private void onSortModeChange() {
@@ -476,6 +484,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 			mErrorMessage = message;
 			mUIEventDispacher.post(mCatalogError);
 		}
+		ObjectRelation.addRelation(this, message);
 	}
 
 	public void onCatalogLoaded(int catalogId, Catalog catalog) {
@@ -489,30 +498,35 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 			mStorage.requestCatalog(getSecondaryId(), false);
 		}
 		mUIEventDispacher.post(mHandleCatalogLoadedEvents);
+		ObjectRelation.addRelation(this, catalog);
 	}
 	
 	public void onCatalogMapChanged(String systemName) {
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 	
 	public void onCatalogMapDownloadFailed(String systemName, Throwable ex){
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName, ex);
 	}
 	
 	public void onCatalogMapImportFailed(String systemName, Throwable ex){
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName, ex);
 	}
 	
 	public void onCatalogMapDownloadDone(String systemName) {
 		if(mMode == MODE_LIST){
 			mUIEventDispacher.post(mUpdateList);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	public void onCatalogMapImportDone(String systemName) {
@@ -529,6 +543,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 			mMessage = message;
 			mUIEventDispacher.post(mUpdateProgress);
 		}
+		ObjectRelation.addRelation(this, message);
 	}
 	
 	public void onCatalogMapDownloadProgress(String systemName, int progress, int total) {
@@ -591,6 +606,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 				});
 			}
 		}
+		ObjectRelation.addRelation(this, location);
 	}
 
 	protected void onLocationSearchCanceled() {}
@@ -606,6 +622,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 	}
 
 	public boolean onCatalogMapClick(CatalogMap local, CatalogMap remote, int state) {
+		ObjectRelation.addRelation(this, local, remote);
 		switch(state){
 		case OFFLINE:
 		case INSTALLED:
@@ -635,6 +652,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 		Intent detailsIntent = new Intent(this, MapDetailsActivity.class);
 		detailsIntent.putExtra(MapDetailsActivity.EXTRA_SYSTEM_NAME, (local!=null) ? local.getSystemName() : remote.getSystemName() );
 		startActivityForResult(detailsIntent, REQUEST_DETAILS);
+		ObjectRelation.addRelation(this, local, remote);
 	}
 
 	protected void invokeFinish(CatalogMap local) {
@@ -654,12 +672,14 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 			setResult(RESULT_CANCELED);
 			finish();
 		}
+		ObjectRelation.addRelation(this, local);
 	}
 
 	public void onClick(View v) {
 		if(v == mActionBarCancelButton){
 			setActionBarVisibility(false);
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 	
 	private void setActionBarVisibility(boolean isVisible) {
@@ -765,6 +785,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 	private TextWatcher mActionTextWatcher = new TextWatcher() {
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
 			mAdapter.getFilter().filter(s);
+			ObjectRelation.addRelation(this, s);
 		}
 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 		}
@@ -792,6 +813,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 		       });
 		AlertDialog alertDialog = builder.create();
 		alertDialog.show();
+		ObjectRelation.addRelation(this, map);
 	}
 
 	private void showDeleteImportMapDialog(final CatalogMap map) {
@@ -813,6 +835,7 @@ public abstract class BaseCatalogActivity extends Activity implements ICatalogSt
 		       });
 		AlertDialog alertDialog = builder.create();
 		alertDialog.show();
+		ObjectRelation.addRelation(this, map);
 	}
 
 	private void updateExternalStorageState() {

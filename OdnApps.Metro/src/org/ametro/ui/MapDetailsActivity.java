@@ -42,6 +42,7 @@ import org.ametro.ui.view.TextStripView.OnlineWidgetView;
 import org.ametro.ui.view.TextStripView.TextBlockView;
 import org.ametro.util.BitmapUtil;
 import org.ametro.util.DateUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -129,6 +130,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_DELETE, 0, R.string.btn_delete).setIcon(android.R.drawable.ic_menu_delete);
 		menu.add(0, MENU_DELETE_PMZ, 0, R.string.btn_delete_pmz).setIcon(android.R.drawable.ic_menu_delete);
+		ObjectRelation.addRelation(this, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -142,6 +144,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 		String code, msg;
 		AlertDialog.Builder builder;
 		AlertDialog alertDialog;
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 
 		case MENU_DELETE:
@@ -203,6 +206,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mIntent = getIntent();
+		ObjectRelation.addRelation(this, savedInstanceState);
 		if (mIntent == null) {
 			finishWithoutResult();
 			return;
@@ -295,6 +299,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 				mStorage.requestImport(mSystemName);
 			}
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 
 	protected void setWaitNoProgressView() {
@@ -449,6 +454,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 			mImportCatalog = catalog;
 		}
 		mUIEventDispacher.post(mCatalogsUpdateRunnable);
+		ObjectRelation.addRelation(this, catalog);
 	}
 
 	public void onCatalogFailed(int catalogId, String message) {
@@ -456,6 +462,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 			mErrorMessage = message;
 			mUIEventDispacher.post(mCatalogError);
 		}
+		ObjectRelation.addRelation(this, message);
 	}
 
 	public void onCatalogProgress(int catalogId, int progress, int total, String message) {
@@ -465,6 +472,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 		if(mSystemName.equals(systemName) ){
 			mUIEventDispacher.post(mDataBindRunnable);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	public void onCatalogMapDownloadFailed(String systemName, Throwable ex){
@@ -473,6 +481,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 			mUIEventDispacher.post(mShowErrorRunnable);
 			mUIEventDispacher.post(mDataBindRunnable);
 		}
+		ObjectRelation.addRelation(this, systemName, ex);
 	}
 
 	public void onCatalogMapImportFailed(String systemName, Throwable ex){
@@ -489,6 +498,7 @@ public class MapDetailsActivity extends Activity implements OnClickListener, ICa
 			mProgress = progress;
 			mUIEventDispacher.post(mDownloadProgressUpdateRunnable);
 		}
+		ObjectRelation.addRelation(this, systemName);
 	}
 
 	public void onCatalogMapImportProgress(String systemName, int progress, int total) {

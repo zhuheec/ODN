@@ -31,6 +31,7 @@ import org.ametro.model.ext.ModelPoint;
 import org.ametro.model.ext.ModelRect;
 import org.ametro.model.ext.ModelSpline;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -56,10 +57,12 @@ public class CsvWriter {
 	public CsvWriter(BufferedWriter writer, String separator) {
 		mWriter = writer;
 		mSeparator = separator;
+		ObjectRelation.addRelation(this, writer, separator);
 	}
 
 	public CsvWriter(BufferedWriter writer) {
 		this(writer, DEFAULT_SEPARATOR);
+		ObjectRelation.addRelation(this, writer);
 	}
 
 	public void newRecord() throws IOException {
@@ -80,6 +83,7 @@ public class CsvWriter {
 			mWriter.write(value);
 		}
 		mColumn++;
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeInt(int value) throws IOException {
@@ -100,6 +104,7 @@ public class CsvWriter {
 		} else {
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeFloat(float value) throws IOException {
@@ -118,6 +123,7 @@ public class CsvWriter {
 		if (value != null) {
 			writeString(dateFormat.format(value));
 		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeRect(Rect rect) throws IOException {
@@ -126,6 +132,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, rect);
 	}
 
 	public void writePoint(Point point) throws IOException {
@@ -134,6 +141,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, point);
 	}
 
 	public void writePointArray(Point[] points) throws IOException {
@@ -148,6 +156,7 @@ public class CsvWriter {
 			sb.deleteCharAt(sb.length()-1);
 		}
 		writeString(sb.toString());
+		ObjectRelation.addRelation(this, points);
 	}
 
 	public void writeModelRect(ModelRect rect) throws IOException {
@@ -156,6 +165,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, rect);
 	}
 
 	public void writeModelPoint(ModelPoint point) throws IOException {
@@ -164,6 +174,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, point);
 	}
 
 	public void writeModelPointArray(ModelPoint[] points) throws IOException {
@@ -178,6 +189,7 @@ public class CsvWriter {
 			sb.deleteCharAt(sb.length()-1);
 		}
 		writeString(sb.toString());
+		ObjectRelation.addRelation(this, points);
 	}	
 
 	public void flush() throws IOException {
@@ -194,6 +206,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, value);
 	}
 	
 	public void writeIntegerArray(Integer[] value) throws IOException {
@@ -202,6 +215,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeModelLocation(ModelLocation value) throws IOException {
@@ -209,7 +223,8 @@ public class CsvWriter {
 			writeString(StringUtil.formatModelLocation(value));
 		} else {
 			writeString(EMPTY_VALUE);
-		}	
+		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeStringArray(String[] value) throws IOException {
@@ -217,7 +232,8 @@ public class CsvWriter {
 			writeString(StringUtil.formatStringArray(value));
 		} else {
 			writeString(EMPTY_VALUE);
-		}		
+		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeInteger(Integer value) throws IOException {
@@ -226,6 +242,7 @@ public class CsvWriter {
 		} else {
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeModelSpline(ModelSpline value) throws IOException {
@@ -234,6 +251,7 @@ public class CsvWriter {
 		} else {
 			writeString(EMPTY_VALUE);
 		}	
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeLongArray(long[] value) throws IOException{
@@ -242,6 +260,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}	
+		ObjectRelation.addRelation(this, value);
 	}
 
 	public void writeBoolArray(boolean[] value) throws IOException{
@@ -250,6 +269,7 @@ public class CsvWriter {
 		}else{
 			writeString(EMPTY_VALUE);
 		}
+		ObjectRelation.addRelation(this, value);
 	}
 
 

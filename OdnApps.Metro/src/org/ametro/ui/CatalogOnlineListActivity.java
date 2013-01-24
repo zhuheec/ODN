@@ -27,6 +27,7 @@ import org.ametro.catalog.CatalogMapPair;
 import org.ametro.catalog.CatalogMapState;
 import org.ametro.catalog.storage.CatalogStorage;
 import org.ametro.ui.adapters.CheckedCatalogAdapter;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Intent;
 import android.view.Menu;
@@ -52,6 +53,7 @@ public class CatalogOnlineListActivity extends BaseCatalogExpandableActivity {
 	}
 
 	public int getCatalogState(CatalogMap local, CatalogMap remote) {
+		ObjectRelation.addRelation(this, local, remote);
 		return mStorageState.getOnlineCatalogState(local, remote);
 	}
 	
@@ -78,6 +80,7 @@ public class CatalogOnlineListActivity extends BaseCatalogExpandableActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN_MENU_DOWNLOAD, 4, R.string.menu_download_maps).setIcon(R.drawable.icon_tab_import_selected);
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 
@@ -87,6 +90,7 @@ public class CatalogOnlineListActivity extends BaseCatalogExpandableActivity {
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_REFRESH:
 			if(!ApplicationEx.getInstance().isNetworkAvailable()){
@@ -109,6 +113,7 @@ public class CatalogOnlineListActivity extends BaseCatalogExpandableActivity {
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ObjectRelation.addRelation(this, data);
 		switch (requestCode) {
 		case REQUEST_DOWNLOAD:
 			if(resultCode == RESULT_OK && data!=null){

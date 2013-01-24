@@ -1,11 +1,14 @@
 package org.ametro.ui.controllers;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.view.MotionEvent;
 
 public class MotionEventMultiTouchWrapper extends MotionEventWrapper {
 
 	public MotionEventMultiTouchWrapper(MotionEvent event) {
 		super(event);
+		ObjectRelation.addRelation(this, event);
 	}
 
 	public int getAction(){

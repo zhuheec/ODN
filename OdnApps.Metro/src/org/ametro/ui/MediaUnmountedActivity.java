@@ -21,6 +21,7 @@
 package org.ametro.ui;
 
 import org.ametro.R;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -56,6 +57,7 @@ public class MediaUnmountedActivity extends Activity {
 				setResult(RESULT_CANCELED);
 			}
 		}
+		ObjectRelation.addRelation(this, event);
 		return super.onKeyDown(keyCode, event);
 	}
 	

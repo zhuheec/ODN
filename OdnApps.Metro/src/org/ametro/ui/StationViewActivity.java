@@ -20,6 +20,8 @@
  */
 package org.ametro.ui;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.app.Activity;
 import android.os.Bundle;
 
@@ -28,6 +30,6 @@ public class StationViewActivity extends Activity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 }

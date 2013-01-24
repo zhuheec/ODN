@@ -1,5 +1,7 @@
 package org.ametro.ui.controllers;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.content.Context;
 import android.os.Handler;
 import android.view.View;
@@ -30,6 +32,7 @@ public class ZoomController {
 				mController.doZoomAnimation(MultiTouchController.ZOOM_OUT);
 			}
 		});
+		ObjectRelation.addRelation(this, controls, controls, controls);
 	}
 
 	private Runnable mZoomControlRunnable = new Runnable() {

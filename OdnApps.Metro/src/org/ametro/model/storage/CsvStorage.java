@@ -54,6 +54,7 @@ import org.ametro.model.TransportTransfer;
 import org.ametro.util.FileUtil;
 import org.ametro.util.csv.CsvReader;
 import org.ametro.util.csv.CsvWriter;
+import org.zh.odn.trace.ObjectRelation;
 
 public class CsvStorage implements IModelStorage {
 
@@ -61,6 +62,7 @@ public class CsvStorage implements IModelStorage {
 		final ZipInputStream zip = new ZipInputStream(new BufferedInputStream(new FileInputStream(fileName), BUFFER_SIZE));
 		final String localeEntryName = String.format(LOCALE_ENTRY_NAME, model.locales[localeId]);
 		ZipEntry zipEntry;
+		ObjectRelation.addRelation(this, fileName, model);
 		while( (zipEntry = zip.getNextEntry()) != null) { 
 			final String name = zipEntry.getName();
 			if(localeEntryName.equals(name)){
@@ -77,6 +79,7 @@ public class CsvStorage implements IModelStorage {
 		final String viewEntryName = String.format(MAP_ENTRY_NAME, viewName);
 		final int id = model.getViewId(viewName);
 		ZipEntry zipEntry;
+		ObjectRelation.addRelation(this, model, viewName);
 		while( (zipEntry = zip.getNextEntry()) != null) { 
 			final String name = zipEntry.getName();
 			if(viewEntryName.equals(name)){
@@ -90,6 +93,7 @@ public class CsvStorage implements IModelStorage {
 	}
 
 	public Model loadModel(String fileName, Locale locale) throws IOException{
+		ObjectRelation.addRelation(this, fileName, locale);
 		return loadModel(fileName, locale, false);
 	}
 
@@ -277,6 +281,7 @@ public class CsvStorage implements IModelStorage {
 			view.transfers[i] = obj;
 		}
 
+		ObjectRelation.addRelation(this, zip, model);
 		return view;
 	}
 
@@ -455,6 +460,7 @@ public class CsvStorage implements IModelStorage {
 		serializeMaps(model, zip, writer);
 		serializeLayers(model, zip, writer);
 		serializeLocaleTable(model, zip);
+		ObjectRelation.addRelation(this, model, zip, writer);
 
 	}
 
@@ -639,6 +645,7 @@ public class CsvStorage implements IModelStorage {
 			writer.flush();
 			zip.closeEntry();
 		}
+		ObjectRelation.addRelation(this, model, zip);
 	}
 
 	private static HashSet<String> mMainEntries = new HashSet<String>();

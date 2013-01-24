@@ -28,6 +28,7 @@ import org.ametro.catalog.storage.tasks.DownloadIconsTask;
 import org.ametro.ui.dialog.ChangeLogDialog;
 import org.ametro.ui.dialog.DownloadIconsDialog;
 import org.ametro.ui.dialog.EULADialog;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -72,6 +73,7 @@ public class CatalogTabHostActivity extends TabActivity implements OnDismissList
 				}
 			}
 		}
+		ObjectRelation.addRelation(this, dialog);
 	}
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +109,7 @@ public class CatalogTabHostActivity extends TabActivity implements OnDismissList
 		tabHost.addTab(tabHost.newTabSpec(TAB_IMPORT)
 				.setIndicator(res.getString(R.string.tab_maps_import), res.getDrawable(R.drawable.icon_tab_import))
 				.setContent(intentImportCatalog));
-		
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 	
 	protected void onResume() {

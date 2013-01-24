@@ -22,6 +22,7 @@ package org.ametro.ui.adapters;
 
 import org.ametro.model.SchemeView;
 import org.ametro.model.route.RouteView;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.view.View;
@@ -36,6 +37,7 @@ public class RouteListAdapter extends StationListAdapter {
 		super(context, route.getStations(), route.getDelays(), map);
 		final float scale = context.getResources().getDisplayMetrics().density;
 		mHalfHeight = (int) (HEIGHT * scale + 0.5f)/2;
+		ObjectRelation.addRelation(this, context, route, map);
 	}
 
 	protected void setListItemView(ListItemWrapper wrapper, int position) {
@@ -50,6 +52,7 @@ public class RouteListAdapter extends StationListAdapter {
 			img.setPadding(img.getPaddingLeft(), 0, img.getPaddingRight(), 0);
 		}		
 		super.setListItemView(wrapper, position);
+		ObjectRelation.addRelation(this, wrapper);
 	}
 	
 }

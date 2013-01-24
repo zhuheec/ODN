@@ -26,6 +26,7 @@ import java.util.Locale;
 import org.ametro.R;
 import org.ametro.app.Constants;
 import org.ametro.ui.dialog.PaymentDetailsDialog;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -61,6 +62,7 @@ public class DonateActivity extends PreferenceActivity implements OnPreferenceCl
 		//mDonateWebMoney.setOnPreferenceClickListener(this);
 		mDonateMoneyBookers.setOnPreferenceClickListener(this);
 		mDonateQiwi.setOnPreferenceClickListener(this);
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onStop() {
@@ -143,6 +145,7 @@ public class DonateActivity extends PreferenceActivity implements OnPreferenceCl
 			Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 			startActivity(webIntent);			
 		}
+		ObjectRelation.addRelation(this, preference);
 		return true;
 	}
 
@@ -154,6 +157,7 @@ public class DonateActivity extends PreferenceActivity implements OnPreferenceCl
 		i.putExtra(PaymentDetailsDialog.EXTRA_AMOUNT, amount);
 		i.putExtra(PaymentDetailsDialog.EXTRA_CONTEXT, url);
 		startActivityForResult(i, REQUEST_DONATE_DETAILS);
+		ObjectRelation.addRelation(this, url, codes, names);
 	}
 	
 	private static String applyTemplate(String template, String currency, float amount){
@@ -161,6 +165,7 @@ public class DonateActivity extends PreferenceActivity implements OnPreferenceCl
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ObjectRelation.addRelation(this, data);
 		switch (requestCode) {
 		case REQUEST_DONATE_DETAILS:
 			if(resultCode == RESULT_OK){

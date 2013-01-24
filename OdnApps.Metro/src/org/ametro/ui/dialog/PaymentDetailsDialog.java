@@ -22,6 +22,7 @@
 package org.ametro.ui.dialog;
 
 import org.ametro.R;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -75,6 +76,7 @@ public class PaymentDetailsDialog extends Activity implements OnClickListener, T
 		
 		prepareData();
 		bindData();
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	protected void onResume() {
@@ -159,11 +161,13 @@ public class PaymentDetailsDialog extends Activity implements OnClickListener, T
 					finish();
 				}
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 
 	public void afterTextChanged(Editable s) {
 		float amount = getAmount(); 
 		mOkButton.setEnabled(amount>=mAmountMinimal);
+		ObjectRelation.addRelation(this, s);
 	}
 
 	public float getAmount(){

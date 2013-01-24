@@ -27,6 +27,7 @@ import static org.ametro.catalog.CatalogMapState.IMPORT_UPDATE;
 import org.ametro.R;
 import org.ametro.catalog.CatalogMapState;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -241,6 +242,7 @@ public class TextStripView extends LinearLayout {
 			mCancelButton = (Button) mContainer.findViewById(R.id.btn_cancel);
 			mProgressBar = (ProgressBar) mContainer
 					.findViewById(R.id.progressbar);
+			ObjectRelation.addRelation(this, context);
 		}
 	}
 
@@ -270,11 +272,14 @@ public class TextStripView extends LinearLayout {
 	public TextStripView(Context context) {
 		super(context);
 		setOrientation(VERTICAL);
+		ObjectRelation.addRelation(this, context);
 	}
 
 	public TextStripView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setOrientation(VERTICAL);
+		ObjectRelation.addRelation(this, context);
+		ObjectRelation.addRelation(this, attrs);
 	}
 
 	public void removeAll() {

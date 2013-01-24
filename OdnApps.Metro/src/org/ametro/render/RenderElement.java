@@ -21,6 +21,8 @@
 
 package org.ametro.render;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
@@ -34,6 +36,7 @@ public abstract class RenderElement implements Comparable<RenderElement> {
         type = newPriority;
         boundingBox = newBoundingBox;
         selected = 0;
+		ObjectRelation.addRelation(this, newBoundingBox);
     }
 
     public void setSelection(boolean selected){
@@ -48,6 +51,7 @@ public abstract class RenderElement implements Comparable<RenderElement> {
 
     public int compareTo(RenderElement another) {
     	int base = this.selected - another.selected;
+		ObjectRelation.addRelation(this, another);
         return base != 0 ? base : type - another.type;
     }
 

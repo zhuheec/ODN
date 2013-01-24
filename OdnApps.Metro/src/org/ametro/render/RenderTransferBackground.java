@@ -28,6 +28,7 @@ import org.ametro.model.StationView;
 import org.ametro.model.TransferView;
 import org.ametro.model.TransportTransfer;
 import org.ametro.model.ext.ModelPoint;
+import org.zh.odn.trace.ObjectRelation;
 
 public class RenderTransferBackground extends RenderElement {
 
@@ -75,6 +76,8 @@ public class RenderTransferBackground extends RenderElement {
         final int bottom = Math.max(FromY, ToY) + radius;
 
         setProperties(RenderProgram.TYPE_TRANSFER_BACKGROUND + view.id, new Rect(left, top, right, bottom));
+        
+		ObjectRelation.addRelation(this, map, view, transfer);
     }
 
     public void setAntiAlias(boolean enabled)
@@ -92,6 +95,7 @@ public class RenderTransferBackground extends RenderElement {
         canvas.drawCircle(FromX, FromY, RadiusBig, Paint);
         canvas.drawCircle(ToX, ToY, RadiusBig, Paint);
         canvas.drawLine(FromX, FromY, ToX, ToY, Paint);
+		ObjectRelation.addRelation(this, canvas);
     }
 
 }

@@ -20,6 +20,8 @@
  */
 package org.ametro.ui.view;
 
+import org.zh.odn.trace.ObjectRelation;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Checkable;
@@ -32,10 +34,12 @@ public class CheckedLinearLayout extends LinearLayout implements Checkable {
 	
 	public CheckedLinearLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		ObjectRelation.addRelation(this, context, attrs);
 	}
 
 	public CheckedLinearLayout(Context context) {
 		super(context);
+		ObjectRelation.addRelation(this, context);
 	}
 
 	public boolean isChecked() {

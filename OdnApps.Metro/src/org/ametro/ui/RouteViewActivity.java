@@ -31,6 +31,7 @@ import org.ametro.model.route.RouteView;
 import org.ametro.ui.adapters.RouteListAdapter;
 import org.ametro.ui.adapters.StationListAdapter;
 import org.ametro.util.DateUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -100,6 +101,7 @@ public class RouteViewActivity extends Activity implements OnClickListener,
 		
 		mStationList.setDividerHeight(0);
 		//mRouteList.setDividerHeight(0);
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 
 	private void updateFavoritesButton() {
@@ -128,11 +130,13 @@ public class RouteViewActivity extends Activity implements OnClickListener,
 					: getString(R.string.msg_route_removed_from_favorites),
 							Toast.LENGTH_SHORT).show();
 		}
+		ObjectRelation.addRelation(this, v);
 	}
 
 	public void onItemClick(AdapterView<?> av, View v, int position, long id) {
 		StationView station = mMapView.stations[(int) id];
 		MapViewActivity.Instance.setCurrentStation(station);
 		finish();
+		ObjectRelation.addRelation(this, av, v);
 	}
 }

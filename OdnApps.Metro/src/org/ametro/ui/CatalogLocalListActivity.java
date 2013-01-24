@@ -27,6 +27,7 @@ import org.ametro.catalog.CatalogMapPair;
 import org.ametro.catalog.CatalogMapState;
 import org.ametro.catalog.storage.CatalogStorage;
 import org.ametro.ui.adapters.CheckedCatalogAdapter;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -63,6 +64,7 @@ public class CatalogLocalListActivity extends BaseCatalogActivity {
 		if(data!=null){
 			mInvokeUpdateList = data.getBooleanExtra(EXTRA_INVOKE_LOCAL_UPDATE_LIST, false);
 		}
+		ObjectRelation.addRelation(this, savedInstanceState);
 	}
 	
 	protected void setListView() {
@@ -97,10 +99,12 @@ public class CatalogLocalListActivity extends BaseCatalogActivity {
 	}
 	
 	public int getCatalogState(CatalogMap local, CatalogMap remote) {
+		ObjectRelation.addRelation(this, local, remote);
 		return mRemote!=null && mLocal!=null ? mStorageState.getLocalCatalogState(local, remote) : CatalogMapState.CALCULATING;
 	}
 
 	public boolean onCatalogMapClick(CatalogMap local, CatalogMap remote, int state) {
+		ObjectRelation.addRelation(this, local, remote);
 		switch(state){
 		case CALCULATING:
 			if(local.isAvailable()){
@@ -159,6 +163,7 @@ public class CatalogLocalListActivity extends BaseCatalogActivity {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MAIN_MENU_UPDATE_MAPS, 5, R.string.menu_update_maps).setIcon(R.drawable.icon_tab_import_selected);
 		menu.add(0, MAIN_MENU_DELETE_MAPS, 6, R.string.menu_delete_maps).setIcon(android.R.drawable.ic_menu_delete);
+		ObjectRelation.addRelation(this, menu);
 		return true;
 	}
 
@@ -169,6 +174,7 @@ public class CatalogLocalListActivity extends BaseCatalogActivity {
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ObjectRelation.addRelation(this, item);
 		switch (item.getItemId()) {
 		case MAIN_MENU_UPDATE_MAPS:
 			invokeSelectUpdateMaps();
@@ -181,6 +187,7 @@ public class CatalogLocalListActivity extends BaseCatalogActivity {
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ObjectRelation.addRelation(this, data);
 		switch (requestCode) {
 		case REQUEST_UPDATE:
 			if(resultCode == RESULT_OK && data!=null){

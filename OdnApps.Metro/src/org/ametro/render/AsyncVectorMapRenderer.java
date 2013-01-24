@@ -7,6 +7,7 @@ import org.ametro.model.SchemeView;
 import org.ametro.model.SegmentView;
 import org.ametro.model.StationView;
 import org.ametro.model.TransferView;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -71,6 +72,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 		this.mScheme = scheme;
 		mMemoryClass = getMemoryClass(container.getContext());
 		setScheme(scheme, renderProgram);
+		ObjectRelation.addRelation(this, container, scheme, renderProgram);
 	}
 
 	public boolean isRenderFailed(){
@@ -88,6 +90,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 			mAntiAliasCurrentState = mAntiAliasEnabled;
 			mRenderer.setSelection(null, null, null);
 		}
+		ObjectRelation.addRelation(this, scheme, renderProgram);
 	}
 
 	public void setSchemeSelection(ArrayList<StationView> stations, ArrayList<SegmentView> segments, ArrayList<TransferView> transfers) {
@@ -98,6 +101,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 				mRenderThread.postRebuildCache();
 			}
 		}
+		ObjectRelation.addRelation(this, stations, segments, transfers);
 	}
 
 	public void onAttachedToWindow() {
@@ -125,6 +129,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 	
 	public void draw(Canvas canvas) {
 		//Log.d(TAG,"draw map");
+		ObjectRelation.addRelation(this, canvas);
 		if(mCache==null){
 			mRenderThread.postRebuildCache();
 			mRenderThread.waitComplete();
@@ -178,6 +183,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 			
 			mIsRenderFailed = false;
 		}
+		ObjectRelation.addRelation(this, newMatrix);
 	}
 	
 	void rebuildCache() {
@@ -383,6 +389,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 		} else {
 			renderAll = true;
 		}
+		ObjectRelation.addRelation(this, schemeRect, cacheRect);
 		return renderAll;
 	}
 
@@ -437,6 +444,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 	}
 
 	private int getMemoryClass(Context context){
+		ObjectRelation.addRelation(this, context);
 		try{
 			Method getMemoryClassMethod = ActivityManager.class.getMethod("getMemoryClass");
 			ActivityManager ac = (ActivityManager)context.getSystemService(Activity.ACTIVITY_SERVICE);
@@ -453,6 +461,7 @@ public class AsyncVectorMapRenderer implements IVectorMapRenderer {
 		public RenderThread(View canvas){
 			super();
 			mCanvas = canvas;
+			ObjectRelation.addRelation(this, canvas);
 		}
 		
 		public void waitComplete() {

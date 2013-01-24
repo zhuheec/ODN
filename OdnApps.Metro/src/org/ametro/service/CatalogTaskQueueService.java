@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 import org.ametro.R;
 import org.ametro.app.Constants;
 import org.ametro.ui.TaskQueuedList;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -76,6 +77,7 @@ public class CatalogTaskQueueService extends Service {
 		int taskLeft = intent.getIntExtra(EXTRA_TASK_LEFT, 0);
 		createNotification(taskLeft);
 		super.onStart(intent, startId);
+		ObjectRelation.addRelation(this, intent);
 	}
 	
 	public void onDestroy() {
@@ -84,6 +86,7 @@ public class CatalogTaskQueueService extends Service {
 	}	
 
 	public IBinder onBind(Intent intent) {
+		ObjectRelation.addRelation(this, intent);
 		return null;
 	}
 

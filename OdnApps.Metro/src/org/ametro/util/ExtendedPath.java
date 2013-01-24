@@ -27,6 +27,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 
 import org.ametro.util.Algorithms.QBezierControls;
+import org.zh.odn.trace.ObjectRelation;
 
 public class ExtendedPath extends Path {
 
@@ -40,6 +41,7 @@ public class ExtendedPath extends Path {
         } else {
             moveTo(p1.x, p1.y);
         }
+		ObjectRelation.addRelation(this, r, p0, p1);
     }
 
     public void drawSplineClipped(Rect r, Point[] points, int begin, int count, boolean clipInner) {
@@ -114,6 +116,7 @@ public class ExtendedPath extends Path {
                 idx++;
             }
         }
+		ObjectRelation.addRelation(this, r, points);
     }
 
     public void drawSpline(Point[] points, int begin, int count) {
@@ -157,6 +160,7 @@ public class ExtendedPath extends Path {
                 idx++;
             }
         }
+		ObjectRelation.addRelation(this, points);
     }
 
 }

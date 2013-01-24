@@ -7,6 +7,7 @@ import org.ametro.model.SchemeView;
 import org.ametro.model.SegmentView;
 import org.ametro.model.StationView;
 import org.ametro.model.TransferView;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -71,6 +72,7 @@ public class VectorMapRenderer implements IVectorMapRenderer {
 		this.mScheme = scheme;
 		mMemoryClass = getMemoryClass(container.getContext());
 		setScheme(scheme, renderProgram);
+		ObjectRelation.addRelation(this, container, scheme, renderProgram);
 	}
 
 	public boolean isRenderFailed(){
@@ -91,11 +93,13 @@ public class VectorMapRenderer implements IVectorMapRenderer {
 		setMatrix(m);
 
 		recycleCache();
+		ObjectRelation.addRelation(this, scheme, renderProgram);
 	}
 
 	public void setSchemeSelection(ArrayList<StationView> stations, ArrayList<SegmentView> segments, ArrayList<TransferView> transfers) {
 		mRenderer.setSelection(stations, segments, transfers);
 		recycleCache();
+		ObjectRelation.addRelation(this, stations, segments, transfers);
 	}
 
 	public void setUpdatesEnabled(boolean enabled){
@@ -112,6 +116,7 @@ public class VectorMapRenderer implements IVectorMapRenderer {
 
 	public void draw(Canvas canvas) {
 		//Log.d(TAG,"draw map");
+		ObjectRelation.addRelation(this, canvas);
 		if(mCache==null){ 
 			// render at first run
 			rebuildCache();
@@ -159,6 +164,7 @@ public class VectorMapRenderer implements IVectorMapRenderer {
 		updateViewRect();
 
 		mIsRenderFailed = false;
+		ObjectRelation.addRelation(this, newMatrix);
 	}
 
 	public void updateViewRect() {
@@ -347,6 +353,7 @@ public class VectorMapRenderer implements IVectorMapRenderer {
 		} else {
 			renderAll = true;
 		}
+		ObjectRelation.addRelation(this, schemeRect, cacheRect);
 		return renderAll;
 	}
 
@@ -455,6 +462,7 @@ public class VectorMapRenderer implements IVectorMapRenderer {
 	}
 	
 	private int getMemoryClass(Context context){
+		ObjectRelation.addRelation(this, context);
 		try{
 			Method getMemoryClassMethod = ActivityManager.class.getMethod("getMemoryClass");
 			ActivityManager ac = (ActivityManager)context.getSystemService(Activity.ACTIVITY_SERVICE);

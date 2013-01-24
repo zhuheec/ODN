@@ -29,6 +29,7 @@ import org.ametro.model.TransportSegment;
 import org.ametro.model.ext.ModelPoint;
 import org.ametro.model.util.ModelUtil;
 import org.ametro.util.ExtendedPath;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Canvas;
 import android.graphics.ComposePathEffect;
@@ -96,6 +97,7 @@ public class RenderSegment extends RenderElement {
             }
         }
         setProperties(lineWorking ? RenderProgram.TYPE_LINE + view.id : RenderProgram.TYPE_LINE_DASHED + view.id, box);
+		ObjectRelation.addRelation(this, map, view, segment);
     }
     
     private void drawSegmentPath(SchemeView map, SegmentView view, TransportSegment segment, StationView from, StationView to, ExtendedPath path) {
@@ -122,6 +124,7 @@ public class RenderSegment extends RenderElement {
             path.moveTo(pointFrom.x, pointFrom.y);
             path.lineTo(pointTo.x, pointTo.y);
         }
+		ObjectRelation.addRelation(this, map, view, segment, from, to , path);
     }
 
     public void setAntiAlias(boolean enabled)
@@ -138,6 +141,7 @@ public class RenderSegment extends RenderElement {
 
     public void draw(Canvas canvas) {
         canvas.drawPath(path, paint);
+		ObjectRelation.addRelation(this, canvas);
     }
 
 }

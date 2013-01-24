@@ -31,6 +31,7 @@ import org.ametro.model.ext.ModelPoint;
 import org.ametro.model.ext.ModelRect;
 import org.ametro.model.ext.ModelSpline;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.graphics.Point;
 
@@ -52,10 +53,12 @@ public class CsvReader {
 	public CsvReader(BufferedReader reader, char separator) {
 		mReader = reader;
 		mSeparator = separator;
+		ObjectRelation.addRelation(this, reader);
 	}
 
 	public CsvReader(BufferedReader reader) {
 		this(reader, DEFAULT_SEPARATOR);
+		ObjectRelation.addRelation(this, reader);
 	}
 
 	ArrayList<String> mLineParts = new ArrayList<String>();

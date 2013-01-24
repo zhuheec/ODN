@@ -27,6 +27,7 @@ import org.ametro.R;
 import org.ametro.model.ext.ModelPoint;
 import org.ametro.model.ext.ModelRect;
 import org.ametro.util.CollectionUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.Context;
 
@@ -73,6 +74,7 @@ public class SchemeView {
 	}
 
 	public boolean equals(Object o) {
+		ObjectRelation.addRelation(this, o);
 		return this == o || o != null && getClass() == o.getClass() && id == ((SchemeView) o).id;
 	}
 
@@ -81,6 +83,7 @@ public class SchemeView {
 	}
 
 	public boolean hasConnections(StationView station) {
+		ObjectRelation.addRelation(this, station);
 		if (station != null) {
 			final int id = station.stationId;
 			for(TransportSegment seg : owner.segments){
@@ -96,6 +99,7 @@ public class SchemeView {
 	}
 
 	public SegmentView getSegmentView(StationView from, StationView to) {
+		ObjectRelation.addRelation(this, from, to);
 		if (to != null && from != null) {
 			return getSegmentView(from.id, to.id);
 		}
@@ -132,6 +136,7 @@ public class SchemeView {
 
 	public StationView getStationViewByDisplayName(String lineName, String stationName) {
 		LineView lineView = getLineViewByDisplayName(lineName);
+		ObjectRelation.addRelation(this, lineName, stationName);
 		if(lineView!=null){
 			for(StationView station : stations){
 				if(station.lineViewId == lineView.id){
@@ -145,6 +150,7 @@ public class SchemeView {
 	}
 
 	public LineView getLineViewByDisplayName(String lineName) {
+		ObjectRelation.addRelation(this, lineName);
 		for(LineView line : lines){
 			final TransportLine l = owner.lines[line.lineId];
 			if(l.getName().equalsIgnoreCase(lineName)){
@@ -182,6 +188,7 @@ public class SchemeView {
 	}
 
 	public TransportCollection getTransportCollection(Context context) {
+		ObjectRelation.addRelation(this, context);
 		return new TransportCollection(this,context);
 	}	
 	

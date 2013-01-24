@@ -21,6 +21,7 @@
 package org.ametro.receiver;
 
 import org.ametro.app.ApplicationEx;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,5 +31,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
 	public void onReceive(Context context, Intent intent) {
 		ApplicationEx.getInstance().invalidateAutoUpdate();
+		ObjectRelation.addRelation(this, context, intent);
 	}
 }

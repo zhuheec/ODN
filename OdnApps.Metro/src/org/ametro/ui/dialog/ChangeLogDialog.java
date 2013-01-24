@@ -24,6 +24,7 @@ package org.ametro.ui.dialog;
 import org.ametro.R;
 import org.ametro.app.Constants;
 import org.ametro.util.StringUtil;
+import org.zh.odn.trace.ObjectRelation;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -79,6 +80,7 @@ public class ChangeLogDialog extends AlertDialog implements OnClickListener {
 		final ScrollView view= new ScrollView(context);
 		view.addView(message);
 		setView(view);
+		ObjectRelation.addRelation(this, context);
 	}
 
 	protected Spannable getContent() {
@@ -123,9 +125,11 @@ public class ChangeLogDialog extends AlertDialog implements OnClickListener {
 		mVersionName = info.versionName;
 		mAppName = getContext().getString( info.applicationInfo.labelRes );
 		mChangelog = context.getResources().getStringArray(R.array.version_changelog);
+		ObjectRelation.addRelation(this, context);
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
 		dismiss();
+		ObjectRelation.addRelation(this, dialog);
 	}
 }
