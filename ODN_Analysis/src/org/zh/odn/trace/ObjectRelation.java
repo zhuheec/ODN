@@ -8,10 +8,12 @@
 
 package org.zh.odn.trace;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
@@ -110,6 +112,37 @@ public class ObjectRelation {
 		}
 	}
 	
+	public static void androidOutputToGraphml(String path) {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(path));
+			TinkerGraph graph = new TinkerGraph();
+			String line = null;
+			while((line = br.readLine()) != null) {
+				String[] vtx = line.split("-->");
+				if(vtx.length == 2 && !vtx[0].equals(vtx[1])) {
+					Vertex v1 = graph.getVertex(vtx[0]);
+					if (v1 == null) {
+						v1 = graph.addVertex(vtx[0]);
+					}
+					Vertex v2 = graph.getVertex(vtx[1]);
+					if (v2 == null) {
+						v2 = graph.addVertex(vtx[1]);
+					}
+					graph.addEdge(line, v1, v2, "");
+				}
+			}
+			br.close();
+			SimpleDateFormat fm = new SimpleDateFormat("yyyyMMddHHmmss");
+			File file = new File("odn_" + fm.format(new Date()) + ".graphml");
+			FileOutputStream fos = new FileOutputStream(file);
+			log.debug("Starting to output ODN graph to file [" + file.getAbsolutePath() + "]...");
+			GraphMLWriter.outputGraph(graph, fos);
+			log.debug("ODN graph output complete.");
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+	
 	public void printAll() {
 		for(Edge e : objectGraph.getEdges()) {
 			log.debug(e.getVertex(Direction.OUT) + RELATION_SYNTAX + e.getVertex(Direction.IN));
@@ -117,6 +150,6 @@ public class ObjectRelation {
 	}
 	
 	public static void main(String[] args) {
-		graphFileToGraphml("odn_20121113121622.graph");
+		androidOutputToGraphml("odn_20121118155948.txt");
 	}
 }

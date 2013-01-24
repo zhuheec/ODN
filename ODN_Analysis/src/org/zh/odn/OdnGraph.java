@@ -39,6 +39,13 @@ public class OdnGraph extends TinkerGraph {
 	/**
 	 * Instantiate of ODN according to specified GraphML file.
 	 * @param graphFilePath Input GraphML file
+	 * 
+	 */
+	
+	/**Generate Graph
+	 * @param graphFilePath 
+	 * @param selfVul
+	 * @param propagateVul
 	 */
 	public OdnGraph(String graphFilePath, double selfVul, double propagateVul) {
 		log.debug("Loading ODN from file [" + graphFilePath + "]...");
@@ -72,15 +79,19 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
-	private void rewire(Vertex src, String prefix, Vertex lastVertex) {
+	private void rewire(Vertex src, String prefix, Vertex lastVertex, HashSet<Vertex> visited) {
+		visited.add(src);
 		for(Vertex v : src.getVertices(Direction.OUT)) {
-			if(!v.getId().toString().startsWith(prefix)) {
-				String edgeId = lastVertex.getId() + RELATION_CONNECTOR + v.getId(); 
-				if(this.getEdge(edgeId) == null) {
-					this.addEdge(edgeId, lastVertex, v, "");
+			if(!visited.contains(v)) {
+				visited.add(v);
+				if(!v.getId().toString().startsWith(prefix)) {
+					String edgeId = lastVertex.getId() + RELATION_CONNECTOR + v.getId(); 
+					if(this.getEdge(edgeId) == null) {
+						this.addEdge(edgeId, lastVertex, v, "");
+					}
+				} else {
+					rewire(v, prefix, lastVertex, visited);
 				}
-			} else {
-				rewire(v, prefix, lastVertex);
 			}
 		}
 	}
@@ -101,7 +112,7 @@ public class OdnGraph extends TinkerGraph {
 		}
 		log.debug("Finished checking prefix [" + prefix + "]. Found [" + removeList.size() + "] vertices. Removing them...");
 		for(Vertex vertexToReserve : reserveList) {
-			rewire(vertexToReserve, prefix, vertexToReserve);
+			rewire(vertexToReserve, prefix, vertexToReserve, new HashSet<Vertex>());
 		}
 		for(Vertex vertexToRemove : removeList) {
 			this.removeVertex(vertexToRemove);
@@ -198,7 +209,7 @@ public class OdnGraph extends TinkerGraph {
 	private static void outputVulByParams() {
 		for(int i = 1; i <= 10; i++) {
 			for(int j = 1; j <= 10; j++) {
-				OdnGraph graph = new OdnGraph("odn.graphml", "org.totschnig.myexpenses", i/10.0, j/10.0);
+				OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", i/10.0, j/10.0);
 				graph.calculateAllVulnerabilities();
 				graph.outputVulnerabilities("results/vul_" + i + "_" + j + ".txt");
 			}
@@ -239,42 +250,36 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
-	public int getNeighborsCount(String className) {
+	public int getNeighborsCount(String objName) {
 		int count = 0;
-		Vertex vertex = null;
+		HashSet<Vertex> visitedVertices = new HashSet<Vertex>();
 		for(Vertex v : this.getVertices()) {
-			if(v.getId().toString().startsWith(className)) {
-				vertex = v;
-				break;
-			}
-		}
-		if(vertex != null) {
-			for(Vertex nbr : vertex.getVertices(Direction.BOTH)) {
-				count++;
+			if(v.getId().toString().split("@")[0].equals(objName.split("@")[0])) {
+				for(Vertex nbr : v.getVertices(Direction.BOTH)) {
+					if(!visitedVertices.contains(nbr)) {
+						visitedVertices.add(nbr);
+						count++;
+					}
+				}
 			}
 		}
 		return count;
 	}
 	
-	public int getTwoHopNeighborsCount(String className) {
+	public int getTwoHopNeighborsCount(String objName) {
 		int count = 0;
 		HashSet<Vertex> visitedVertices = new HashSet<Vertex>();
-		Vertex vertex = null;
 		for(Vertex v : this.getVertices()) {
-			if(v.getId().toString().startsWith(className)) {
-				vertex = v;
-				break;
-			}
-		}
-		if(vertex != null) {
-			for(Vertex nbr : vertex.getVertices(Direction.BOTH)) {
-				if(!visitedVertices.contains(nbr)) {
-					visitedVertices.add(nbr);
-					count++;
-					for(Vertex nbr2 : nbr.getVertices(Direction.BOTH)) {
-						if(!visitedVertices.contains(nbr2)) {
-							visitedVertices.add(nbr2);
-							count++;
+			if(v.getId().toString().split("@")[0].equals(objName.split("@")[0])) {
+				for(Vertex nbr : v.getVertices(Direction.BOTH)) {
+					if(!visitedVertices.contains(nbr)) {
+						visitedVertices.add(nbr);
+						count++;
+						for(Vertex nbr2 : nbr.getVertices(Direction.BOTH)) {
+							if(!visitedVertices.contains(nbr2)) {
+								visitedVertices.add(nbr2);
+								count++;
+							}
 						}
 					}
 				}
@@ -284,17 +289,26 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		OdnGraph graph = new OdnGraph("odn.graphml", "org.totschnig.myexpenses", 0.1, 0.1);
-		int vcount = 0;
-		for(Vertex v : graph.getVertices()) {
-			vcount++;
-			log.debug("Object [" + v.getId() + "] has [" + graph.getNeighborsCount(v.getId().toString()) + "] neighbors.");
+		boolean firstTime = true;
+		if(firstTime) {
+			OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", 0.1, 0.1);
+			int vcount = 0;
+			for(Vertex v : graph.getVertices()) {
+				vcount++;
+				log.debug("Object [" + v.getId() + "] has [" + graph.getNeighborsCount(v.getId().toString()) + "] 1-hop and" +
+						"["+ graph.getTwoHopNeighborsCount(v.getId().toString()) +"] 2-hop neighbors.");
+			}
+			log.debug("total vertices: [" + vcount + "].");
+			graph.saveToGraphml("odn_inner.graphml");
+		} else {
+			outputVulByParams();
+			outputVulByClass();
 		}
-		log.debug("total vertices: [" + vcount + "].");
-		//outputVulByParams();
-		//outputVulByClass();
-		
-		graph.saveToGraphml("odn_inner.graphml");
+//		for(int i = 1; i <= 10; i++) {
+//			OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro", 0.1, i/10.0);
+//			double vul = graph.getVulnerability("org.ametro.render.RenderProgram@1092492816");
+//			log.info("VUL when b = " + i/10.0 + " is " + vul);
+//		}
 		//Vertex start = graph.getVertex("com.even.trendcraw.GoogleTrendsDataPull@954049115");
 		//Vertex end = graph.getVertex("com.even.trendcraw.MySqlConnection@771153740");
 		//VertexPair vp = new VertexPair(graph, start, end);
