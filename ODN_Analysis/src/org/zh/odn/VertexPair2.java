@@ -196,7 +196,7 @@ public class VertexPair2 {
 	 */
 	public double getVulnerability() {
 		log.debug("Starting to calculate vul...");
-		double vul = 0;
+		double vul = 0.0;
 		for(int i = 0; i < allPaths.size(); i++) {
 			Poly poly = new Poly();
 			for(int j = 0; j <= i; j++) {
@@ -218,7 +218,22 @@ public class VertexPair2 {
 				}	
 			}
 			// accumulate the vul of each poly here
-			//vul += poly.getVul();
+			for(Term t : poly.getTerms()) {
+				double termVul = t.getCoefficient();
+				for(Variable var: t.getVars()) {
+					termVul *= getVarVul(var);
+				}
+				vul += termVul;
+			}
+		}
+		return vul;
+	}
+	
+	private double getVarVul(Variable var) {
+		double vul = 0.0;
+		Edge edge = graph.getEdge(var.getName());
+		if(edge != null) {
+			vul = Double.parseDouble(edge.getProperty(OdnGraph.RELATION_VUL_KEY).toString());
 		}
 		return vul;
 	}

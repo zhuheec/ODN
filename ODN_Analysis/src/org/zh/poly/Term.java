@@ -19,6 +19,10 @@ public class Term {
 		this.coefficient = coefficient;
 	}
 	
+	public int getCoefficient() {
+		return coefficient;
+	}
+	
 	public void addVar(Variable var) {
 		if(!vars.containsKey(var.getName())) {
 			vars.put(var.getName(), var);

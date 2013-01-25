@@ -155,7 +155,7 @@ public class OdnGraph extends TinkerGraph {
 			log.debug("Calculating the vulnerability of Object [" + objectId +"]...");
 			for(Vertex src : this.getVertices()) {
 				if(!src.equals(dst)) {
-					VertexPair vp = new VertexPair(this, src, dst);
+					VertexPair2 vp = new VertexPair2(this, src, dst);
 					vul *= (1 - vp.getVulnerability());
 				}
 			}
@@ -289,7 +289,7 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		boolean firstTime = true;
+		boolean firstTime = false;
 		if(firstTime) {
 			OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", 0.1, 0.1);
 			int vcount = 0;
