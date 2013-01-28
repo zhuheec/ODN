@@ -20,7 +20,7 @@ public class VertexPair2 {
 	
 	static { log.setLevel(Level.DEBUG); }
 	
-	private Graph graph = null;
+	private OdnGraph graph = null;
 	private String startTag = "";
 	private String endTag = "";
 	
@@ -28,7 +28,6 @@ public class VertexPair2 {
 	private LinkedList<LinkedList<Vertex>> allPaths;
 	private Graph pathTree;
 	private int pathCount = 0;
-	//private double startSelfVul = 1.0;
 	
 	
 	/**
@@ -37,7 +36,7 @@ public class VertexPair2 {
 	 * @param startVertex The node to start
 	 * @param endVertex The node to end
 	 */
-	public VertexPair2(Graph graph, Vertex startVertex, Vertex endVertex) {
+	public VertexPair2(OdnGraph graph, Vertex startVertex, Vertex endVertex) {
 		// set graph to calculate
 		this.graph = graph;
 		log.debug("[Graph] has been assigned to calculate vulnerability.");
@@ -196,18 +195,35 @@ public class VertexPair2 {
 	 */
 	public double getVulnerability() {
 		log.debug("Starting to calculate vul...");
-		double vul = 0.0;
+		// get minimum path length of the tree
+		int minPathLen = Integer.MAX_VALUE;
 		for(int i = 0; i < allPaths.size(); i++) {
+			if(allPaths.get(i).size() < minPathLen) {
+				minPathLen = allPaths.get(i).size();
+			}
+		}
+		
+		LinkedList<LinkedList<Vertex>> validPaths = new LinkedList<LinkedList<Vertex>>();
+		for(int i = 0; i < allPaths.size(); i++) {
+			if(allPaths.get(i).size() <= minPathLen) {
+				validPaths.add(allPaths.get(i));
+			}
+		}
+		log.debug("There are ["+ validPaths.size() +"] paths.");
+		
+		double vul = 0.0;
+		for(int i = 0; i < validPaths.size(); i++) {
 			Poly poly = new Poly();
 			for(int j = 0; j <= i; j++) {
-				LinkedList<Vertex> path = allPaths.get(j);
+				//log.debug("Getting Path[" + j +"]");
+				LinkedList<Vertex> path = validPaths.get(j);
 				Term term1 = new Term();
 				Term term2 = new Term();
 				for(int k = 0; k < path.size() - 1; k++) {
 					term2.addVar(Variable.getVariable(
-							"[" + path.get(k).getId().toString().split(":")[0] + "]"
+							path.get(k).getId().toString().split(":")[0]
 							+ OdnGraph.RELATION_CONNECTOR
-							+ path.get(k + 1).getId().toString().split(":")[0] + "]"));
+							+ path.get(k + 1).getId().toString().split(":")[0]));
 				}
 				
 				if(j == i) {
@@ -221,19 +237,23 @@ public class VertexPair2 {
 			for(Term t : poly.getTerms()) {
 				double termVul = t.getCoefficient();
 				for(Variable var: t.getVars()) {
-					termVul *= getVarVul(var);
+					termVul *= getVarEdgeVul(var);
 				}
 				vul += termVul;
 			}
 		}
-		return vul;
+		Vertex startVtx = graph.getVertex(startTag);
+		double srcSelfVul = Double.parseDouble(startVtx.getProperty(OdnGraph.SELF_VUL_KEY).toString());
+		//log.debug("EVENEVENEVENVE:" + srcSelfVul);
+		return srcSelfVul * vul;
 	}
 	
-	private double getVarVul(Variable var) {
+	private double getVarEdgeVul(Variable var) {
 		double vul = 0.0;
 		Edge edge = graph.getEdge(var.getName());
 		if(edge != null) {
 			vul = Double.parseDouble(edge.getProperty(OdnGraph.RELATION_VUL_KEY).toString());
+			//log.debug("ZHZHZHZH: " + vul);
 		}
 		return vul;
 	}
@@ -242,61 +262,61 @@ public class VertexPair2 {
 	 * Print the path tree.
 	 */
 	public void printPathTree() {
-		log.debug("Starting to print the [PathTree] from [" + startTag + "] to [" + endTag + "]...");
+		//log.debug("Starting to print the [PathTree] from [" + startTag + "] to [" + endTag + "]...");
 		// print tree from the root vertex
 		printPathTree(pathTree.getVertex(startTag));
-		log.debug("Finshed printing the [PathTree].");
+		//log.debug("Finshed printing the [PathTree].");
 	}
 	
-	public static void main(String[] args) {
-		// this graph is directional
-		Graph graph = new TinkerGraph();
-		Vertex va = graph.addVertex("A");
-		va.setProperty(OdnGraph.CLASS_NAME_KEY, "A");
-		Vertex vb = graph.addVertex("B");
-		vb.setProperty(OdnGraph.CLASS_NAME_KEY, "B");
-		Vertex vc = graph.addVertex("C");
-		vc.setProperty(OdnGraph.CLASS_NAME_KEY, "C");
-		Vertex vd = graph.addVertex("D");
-		vd.setProperty(OdnGraph.CLASS_NAME_KEY, "D");
-		Vertex ve = graph.addVertex("E");
-		ve.setProperty(OdnGraph.CLASS_NAME_KEY, "E");
-		Vertex vf = graph.addVertex("F");
-		vf.setProperty(OdnGraph.CLASS_NAME_KEY, "F");
-		
-		Edge ab = graph.addEdge(1, va, vb, "A-->B");
-		ab.setProperty(OdnGraph.RELATION_NAME_KEY, "A-->B");
-		ab.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge ac = graph.addEdge(2, va, vc, "A-->C");
-		ac.setProperty(OdnGraph.RELATION_NAME_KEY, "A-->C");
-		ac.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge bd = graph.addEdge(3, vb, vd, "B-->D");
-		bd.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->D");
-		bd.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge be = graph.addEdge(4, vb, ve, "B-->E");
-		be.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->E");
-		be.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge bf = graph.addEdge(5, vb, vf, "B-->F");
-		bf.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->F");
-		bf.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge ce = graph.addEdge(6, vc, ve, "C-->E");
-		ce.setProperty(OdnGraph.RELATION_NAME_KEY, "C-->E");
-		ce.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge cf = graph.addEdge(7, vc, vf, "C-->F");
-		cf.setProperty(OdnGraph.RELATION_NAME_KEY, "C-->F");
-		cf.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		Edge ef = graph.addEdge(8, ve, vf, "E-->F");
-		ef.setProperty(OdnGraph.RELATION_NAME_KEY, "E-->F");
-		ef.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
-		
-		VertexPair2 vul = new VertexPair2(graph, vb, ve);
-		vul.printPaths();
-	}
+//	public static void main(String[] args) {
+//		// this graph is directional
+//		Graph graph = new TinkerGraph();
+//		Vertex va = graph.addVertex("A");
+//		va.setProperty(OdnGraph.CLASS_NAME_KEY, "A");
+//		Vertex vb = graph.addVertex("B");
+//		vb.setProperty(OdnGraph.CLASS_NAME_KEY, "B");
+//		Vertex vc = graph.addVertex("C");
+//		vc.setProperty(OdnGraph.CLASS_NAME_KEY, "C");
+//		Vertex vd = graph.addVertex("D");
+//		vd.setProperty(OdnGraph.CLASS_NAME_KEY, "D");
+//		Vertex ve = graph.addVertex("E");
+//		ve.setProperty(OdnGraph.CLASS_NAME_KEY, "E");
+//		Vertex vf = graph.addVertex("F");
+//		vf.setProperty(OdnGraph.CLASS_NAME_KEY, "F");
+//		
+//		Edge ab = graph.addEdge(1, va, vb, "A-->B");
+//		ab.setProperty(OdnGraph.RELATION_NAME_KEY, "A-->B");
+//		ab.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge ac = graph.addEdge(2, va, vc, "A-->C");
+//		ac.setProperty(OdnGraph.RELATION_NAME_KEY, "A-->C");
+//		ac.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge bd = graph.addEdge(3, vb, vd, "B-->D");
+//		bd.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->D");
+//		bd.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge be = graph.addEdge(4, vb, ve, "B-->E");
+//		be.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->E");
+//		be.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge bf = graph.addEdge(5, vb, vf, "B-->F");
+//		bf.setProperty(OdnGraph.RELATION_NAME_KEY, "B-->F");
+//		bf.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge ce = graph.addEdge(6, vc, ve, "C-->E");
+//		ce.setProperty(OdnGraph.RELATION_NAME_KEY, "C-->E");
+//		ce.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge cf = graph.addEdge(7, vc, vf, "C-->F");
+//		cf.setProperty(OdnGraph.RELATION_NAME_KEY, "C-->F");
+//		cf.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		Edge ef = graph.addEdge(8, ve, vf, "E-->F");
+//		ef.setProperty(OdnGraph.RELATION_NAME_KEY, "E-->F");
+//		ef.setProperty(OdnGraph.RELATION_VUL_KEY, 0.5);
+//		
+//		VertexPair2 vul = new VertexPair2(graph, vb, ve);
+//		vul.printPaths();
+//	}
 }

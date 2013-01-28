@@ -36,6 +36,9 @@ public class OdnGraph extends TinkerGraph {
 	private static final Logger log = Logger.getLogger(OdnGraph.class);
 	static { log.setLevel(Level.DEBUG); }
 	
+	public double selfVul = 0.0;
+	public double propVul = 0.0;
+	
 	/**
 	 * Instantiate of ODN according to specified GraphML file.
 	 * @param graphFilePath Input GraphML file
@@ -52,6 +55,8 @@ public class OdnGraph extends TinkerGraph {
 		try {
 			// read the initial ODN from file
 			GraphMLReader.inputGraph(this, new FileInputStream(graphFilePath));
+			this.selfVul = selfVul;
+			this.propVul = propagateVul;
 			log.debug("File data loaded. Now preparing vertices...");
 			// set vertex name
 			int vcount = 0;
@@ -167,7 +172,14 @@ public class OdnGraph extends TinkerGraph {
 	
 	public void calculateAllVulnerabilities() {
 		log.debug("Starting to print all vulnerabilities of the ODN...");
+		int count = 0;
 		for(Vertex v : this.getVertices()) {
+			count ++;
+		}
+		int currCount = 0;
+		for(Vertex v : this.getVertices()) {
+			currCount++;
+			log.debug("Getting vulnerability of Node ["+ currCount +" / "+ count +"].");
 			double vul = getVulnerability(v.getId().toString());
 			v.setProperty(OVERALL_VUL_KEY, vul);
 		}
@@ -210,6 +222,9 @@ public class OdnGraph extends TinkerGraph {
 		for(int i = 1; i <= 10; i++) {
 			for(int j = 1; j <= 10; j++) {
 				OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", i/10.0, j/10.0);
+				for(Edge edge : graph.getEdges()) {
+					log.debug(edge.getId());
+				}
 				graph.calculateAllVulnerabilities();
 				graph.outputVulnerabilities("results/vul_" + i + "_" + j + ".txt");
 			}
@@ -289,8 +304,8 @@ public class OdnGraph extends TinkerGraph {
 	}
 	
 	public static void main(String[] args) {
-		boolean firstTime = false;
-		if(firstTime) {
+		boolean convertGraphML = false;
+		if(convertGraphML) {
 			OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", 0.1, 0.1);
 			int vcount = 0;
 			for(Vertex v : graph.getVertices()) {
