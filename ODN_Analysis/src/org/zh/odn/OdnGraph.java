@@ -50,7 +50,7 @@ public class OdnGraph extends TinkerGraph {
 	 * @param selfVul
 	 * @param propagateVul
 	 */
-	public OdnGraph(String graphFilePath, double selfVul, double propagateVul) {
+	public OdnGraph(String graphFilePath, double selfVul, double propagateVul, String... localObjects) {
 		log.debug("Loading ODN from file [" + graphFilePath + "]...");
 		try {
 			// read the initial ODN from file
@@ -66,6 +66,15 @@ public class OdnGraph extends TinkerGraph {
 				vertex.setProperty(VISITED_KEY, false);
 				vertex.setProperty(SELF_VUL_KEY, selfVul);
 				vcount++;
+			}
+			for(String localObjName : localObjects) {
+				for(Vertex localV : this.getVertices()) {
+					if(localV.getId().toString().split("@")[0].equals(localObjName)) {
+						//System.out.println(localV.getId());
+						//System.in.read();
+						localV.setProperty(SELF_VUL_KEY, 0);				
+					}
+				}
 			}
 			log.debug("All [" + vcount + "] vertices are ready. Now preparing edges...");
 			// set edge name
@@ -101,8 +110,8 @@ public class OdnGraph extends TinkerGraph {
 		}
 	}
 	
-	public OdnGraph(String graphFilePath, String prefix, double selfVul, double propagateVul) {
-		this(graphFilePath, selfVul, propagateVul);
+	public OdnGraph(String graphFilePath, String prefix, double selfVul, double propagateVul, String... localObjects) {
+		this(graphFilePath, selfVul, propagateVul, localObjects);
 		log.debug("Loading Sub ODN from file [" + graphFilePath + "] with prefix [" + prefix + "]...");
 		LinkedList<Vertex> removeList = new LinkedList<Vertex>();
 		LinkedList<Vertex> reserveList = new LinkedList<Vertex>();
@@ -221,7 +230,7 @@ public class OdnGraph extends TinkerGraph {
 	private static void outputVulByParams() {
 		for(int i = 1; i <= 10; i++) {
 			for(int j = 1; j <= 10; j++) {
-				OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", i/10.0, j/10.0);
+				OdnGraph graph = new OdnGraph("odn.graphml", "org.ametro.render", i/10.0, j/10.0, "org.ametro.render.RenderStationName");
 				for(Edge edge : graph.getEdges()) {
 					log.debug(edge.getId());
 				}
