@@ -6,8 +6,15 @@ package org.odg.multipath;
  * @author He Zhu
  *
  */
-public class OdgVertex {
-	private double cloudOriginatedVul;
+public class OdgObject {
+	
+	private String name;
+	private double cloudOriginatedVul = 0.1;
+	
+	public OdgObject(String name, double cloudOriginatedVul) {
+		this.name = name;
+		this.cloudOriginatedVul = cloudOriginatedVul;
+	}
 
 	/**
 	 * Returns the cloud-originated vulnerability of this vertex
@@ -23,5 +30,21 @@ public class OdgVertex {
 	 */
 	public void setCloudOriginatedVul(double selfOriginatedVul) {
 		this.cloudOriginatedVul = selfOriginatedVul;
+	}
+
+	/**
+	 * Returns the name of the object
+	 * @return object name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Assigns the name of the object
+	 * @param name object name
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 }
