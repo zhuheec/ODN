@@ -12,8 +12,12 @@ public class VulSolver {
 	
 	private ListenableUndirectedWeightedGraph<OdgObject, OdgRelation> graph;
 	
-	public VulSolver(ListenableUndirectedWeightedGraph<OdgObject, OdgRelation> graph) {
+	
+	public VulSolver(ListenableUndirectedWeightedGraph<OdgObject, OdgRelation> graph, ) {
 		this.graph = graph;
+		// find all paths between the two objects
+		KShortestPaths<OdgObject, OdgRelation> kpathsFinder = new KShortestPaths<OdgObject, OdgRelation>(graph, startObj, MAX_PATH_NUM);
+		kpaths = kpathsFinder.getPaths(endObj);
 	}
 	
 	public void getMinCut() {
@@ -29,12 +33,12 @@ public class VulSolver {
 			OdgObject startObj,
 			OdgObject endObj)
 	{
-		KShortestPaths<OdgObject, OdgRelation> sp = new KShortestPaths<OdgObject, OdgRelation>(graph, startObj, 10);
+		
 		return sp.getPaths(endObj);
 	}
 	
-	public double getPropagatedVulUpperBound(OdgObject startObj, OdgObject endObj) {
-		return 0;
-	}
+	
+	
+	
 	
 }
