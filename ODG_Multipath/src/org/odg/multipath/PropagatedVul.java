@@ -11,16 +11,20 @@ import org.jgrapht.graph.ListenableUndirectedWeightedGraph;
 public class PropagatedVul {
 	
 	public static final int MAX_PATH_NUM = 10;
-	List<GraphPath<OdgObject, OdgRelation>> kpaths;
 	
-	private ListenableUndirectedWeightedGraph<OdgObject, OdgRelation> graph;
+	private List<GraphPath<OdgObject, OdgRelation>> kpaths;
+	private ArrayList<HashSet<OdgRelation>> cutList;
 	
 	public PropagatedVul(ListenableUndirectedWeightedGraph<OdgObject, OdgRelation> graph,
 			OdgObject startObj, OdgObject endObj) {
-		this.graph = graph;
+		//initialize cut list
+		cutList = new ArrayList<HashSet<OdgRelation>>();
 		// find all paths between the two objects
 		KShortestPaths<OdgObject, OdgRelation> kpathsFinder = new KShortestPaths<OdgObject, OdgRelation>(graph, startObj, MAX_PATH_NUM);
 		kpaths = kpathsFinder.getPaths(endObj);
+		System.out.println("There are " + kpaths.size() + " paths from [" + startObj.getName() + "] to [" + endObj.getName() + "].");
+		// calculate all cuts and save them to the cut list
+		findPath(0, null);
 	}
 	/**
 	 * Calculates the upper bound of the propagated vulnerability between two objects.
@@ -58,22 +62,51 @@ public class PropagatedVul {
 	 * @return
 	 */
 	public double getPropagatedVulLowerBound() {
-		boolean[] isPathFail = new boolean[kpaths.size()];
-		
-		boolean[][] tried = new boolean[10][10];
-		
-		for(int i = 0; i < kpaths.size(); i++) {
-			GraphPath<OdgObject, OdgRelation> path = kpaths.get(i);
-			HashSet<OdgRelation> cut = new HashSet<OdgRelation>();
-			List<OdgRelation> edges = path.getEdgeList();
-			for(int j = 0; j < edges.size(); j++) {
-				if(!tried[i][j]) {
-					cut.add(edges.get(j));
-					tried[i][j] = true;
-					break;
+		double propagatedVul = 1.0;
+		for(HashSet<OdgRelation> cut : cutList) {
+			double cutVul = 1.0;
+			for(OdgRelation edge : cut) {
+				cutVul *= 1 - edge.getPropagatedVul();
+			}
+			cutVul = 1 - cutVul;
+			propagatedVul *= cutVul;
+		}
+		return propagatedVul;
+	}
+	
+	/**
+	 * A recursive function that finds all paths between the source and destination object
+	 * @param currentPathIndex The index of current path from 0 to total number of path - 1
+	 * @param currentCut set of edges in current cut. Once a cut is found, it will be added to this set 
+	 */
+	private void findPath(int currentPathIndex, HashSet<OdgRelation> currentCut) {
+		// if current path index is not the last, get the current and the next path
+		GraphPath<OdgObject, OdgRelation> currentPath = kpaths.get(currentPathIndex);
+		// create an array to record if each edge has been visited
+		boolean[] isEdgeVisited = new boolean[currentPath.getEdgeList().size()];
+		// get all edges for the current path
+		List<OdgRelation> edges = currentPath.getEdgeList();
+		// traverse the edges in the path
+		for(int j = 0; j < edges.size(); j++) {
+			// only check edges not visited
+			if(!isEdgeVisited[j]) {
+				// create a cut instance for a new cut 
+				if(currentCut == null) {
+					currentCut = new HashSet<OdgRelation>();
 				}
+				// add current edge to current cut
+				currentCut.add(edges.get(j));
+				// set the state of the edge to visited
+				isEdgeVisited[j] = true;
+				// if reaches the last path, add this cut to the cut list
+				if(currentPathIndex == kpaths.size() - 1) {
+					// reach the end of the paths list, add the path to set
+					cutList.add(new HashSet<OdgRelation>(currentCut));
+				} else {
+					findPath(currentPathIndex + 1, currentCut);
+				}
+				currentCut.remove(edges.get(j));
 			}
 		}
-		return 0;
 	}
 }

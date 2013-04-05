@@ -10,12 +10,12 @@ import org.jgrapht.graph.DefaultWeightedEdge;
  *
  */
 public class OdgRelation extends DefaultWeightedEdge {
+
+	private static final long serialVersionUID = 7981569470984390270L;
 	
 	private WeightedGraph<OdgObject, OdgRelation> graph;
-	private double propagatedVul = 0.0;
 	
 	public OdgRelation(WeightedGraph<OdgObject, OdgRelation> graph, double propagatedVul) {
-		System.out.println("OdgRelation initialized!");
 		this.graph = graph;
 		graph.setEdgeWeight(this, propagatedVul);
 	}
@@ -25,7 +25,7 @@ public class OdgRelation extends DefaultWeightedEdge {
 	 * @return propagated vulnerability
 	 */
 	public double getPropagatedVul() {
-		return propagatedVul;
+		return graph.getEdgeWeight(this);
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class OdgRelation extends DefaultWeightedEdge {
 	 * @param propagatedVul propagated vulnerability
 	 */
 	public void setPropagatedVul(double propagatedVul) {
-		this.propagatedVul = propagatedVul;
+		graph.setEdgeWeight(this, propagatedVul);
 	}
 	
 }
